@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 
+import { Button } from '@/ui/button'
 import { ArrowRight02Icon } from '@/ui/icons/arrow-right-02'
 
 import { SignInForm } from './sing-in-form'
@@ -24,12 +25,10 @@ export default function SignIn() {
       <div className="mt-auto flex flex-col gap-5">
         <p className="text-body-md text-gray-300">Ainda não tem uma conta?</p>
         <Link href="/sign-up">
-          <button className="group flex h-14 w-full items-center justify-between rounded-xl border border-orange-base bg-transparent p-4 text-action-md text-orange-base transition-colors hover:border-orange-dark">
-            <span className="transition-colors group-hover:text-orange-dark">
-              Cadastrar
-            </span>
-            <ArrowRight02Icon className="size-6 text-orange-base transition-colors group-hover:text-orange-dark" />
-          </button>
+          <Button variant="outline" type="button">
+            Cadastrar
+            <ArrowRight02Icon className="ml-auto size-6 text-orange-base transition-colors group-hover:text-orange-dark" />
+          </Button>
         </Link>
       </div>
     </div>
