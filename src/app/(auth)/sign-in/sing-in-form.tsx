@@ -1,15 +1,20 @@
 'use client'
-import { useRef, useState } from 'react'
+import { useActionState, useRef, useState } from 'react'
 
 import { Button } from '@/ui/button'
 import { AccessIcon } from '@/ui/icons/access'
 import { ArrowRight02Icon } from '@/ui/icons/arrow-right-02'
+import { Loading01Icon } from '@/ui/icons/loading-01'
 import { Mail02Icon } from '@/ui/icons/mail-02'
 import { ViewIcon } from '@/ui/icons/view'
 import { ViewOffIcon } from '@/ui/icons/view-off'
 import * as Input from '@/ui/input'
 
+import { signIn } from './actions/sign-in'
+
 export const SignInForm = () => {
+  const [state, formAction, isPending] = useActionState(signIn, null)
+
   const [passwordShown, setPasswordShown] = useState(false)
 
   const inputRef = useRef<HTMLInputElement>(null)
@@ -25,7 +30,7 @@ export const SignInForm = () => {
   }
 
   return (
-    <form method="POST" className="space-y-12">
+    <form action={formAction} className="space-y-12">
       <div className="space-y-5">
         <Input.Root>
           <Input.Label>E-mail</Input.Label>
@@ -68,9 +73,18 @@ export const SignInForm = () => {
         </Input.Root>
       </div>
 
-      <Button variant="primary">
-        Acessar
-        <ArrowRight02Icon className="ml-auto size-6 text-white" />
+      <Button variant="primary" disabled={isPending}>
+        {isPending ? (
+          <>
+            Carregando...
+            <Loading01Icon className="ml-auto size-6 animate-spin text-white" />
+          </>
+        ) : (
+          <>
+            Acessar
+            <ArrowRight02Icon className="ml-auto size-6 text-white" />
+          </>
+        )}
       </Button>
     </form>
   )

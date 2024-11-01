@@ -8,15 +8,24 @@ export default function AuthLayout({
   return (
     <main className="m-auto grid min-h-screen max-w-[1366px] grid-cols-2">
       <section className="space-y-14">
-        <div className="ml-10 mt-10">
+        <div className="ml-10 mt-10 flex items-center gap-5">
           <Image
             alt="logo"
             src="/images/logo.svg"
-            className="h-16 w-64"
-            width={300}
-            height={70}
+            className="w-23"
+            width={100}
+            height={100}
             quality={100}
           />
+
+          <div className="mt-1 space-y-1">
+            <h1 className="font-dm-sans text-title-md text-gray-500">
+              Marketplace
+            </h1>
+            <h2 className="text-body-md leading-relaxed text-gray-400">
+              Painel de Vendedor
+            </h2>
+          </div>
         </div>
 
         <div>

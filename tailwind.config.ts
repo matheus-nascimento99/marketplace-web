@@ -122,6 +122,19 @@ const config: Config = {
       spacing: {
         '30': '7.5rem',
       },
+      width: {
+        '23': '90px',
+        '42': '168px',
+      },
+      height: {
+        '0.25': '1px',
+      },
+      padding: {
+        '2.5': '10px',
+      },
+      gap: {
+        '0.25': '0.104166667rem',
+      },
     },
   },
   plugins: [],

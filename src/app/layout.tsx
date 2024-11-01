@@ -2,6 +2,7 @@ import './globals.css'
 
 import type { Metadata } from 'next'
 import { DM_Sans as DMSans, Poppins } from 'next/font/google'
+import { Toaster } from 'sonner'
 
 export const headingFont = DMSans({
   weight: '700',
@@ -31,6 +32,7 @@ export default function RootLayout({
         className={`${bodyFont.variable} ${headingFont.variable} bg-background font-sans antialiased`}
       >
         {children}
+        <Toaster richColors={true} />
       </body>
     </html>
   )

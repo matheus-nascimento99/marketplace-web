@@ -1,13 +1,16 @@
 'use client'
 
 import Image from 'next/image'
-import { ChangeEvent, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { ChangeEvent, useActionState, useEffect, useRef, useState } from 'react'
+import { toast } from 'sonner'
 
 import { Button } from '@/ui/button'
 import { AccessIcon } from '@/ui/icons/access'
 import { ArrowRight02Icon } from '@/ui/icons/arrow-right-02'
 import { CallIcon } from '@/ui/icons/call'
 import { ImageUploadIcon } from '@/ui/icons/image-upload'
+import { Loading01Icon } from '@/ui/icons/loading-01'
 import { Mail02Icon } from '@/ui/icons/mail-02'
 import { UserIcon } from '@/ui/icons/user'
 import { ViewIcon } from '@/ui/icons/view'
@@ -15,7 +18,33 @@ import { ViewOffIcon } from '@/ui/icons/view-off'
 import * as Input from '@/ui/input'
 import { maskPhone } from '@/utils/mask-phone'
 
+import { signUp } from './actions/sign-up'
+
 export const SignUpForm = () => {
+  const router = useRouter()
+  const [state, formState, isPending] = useActionState(signUp, {
+    success: false,
+    message: null,
+    payload: null,
+    validationErrors: null,
+  })
+
+  useEffect(() => {
+    if (state.success) {
+      toast.success('Cadastro realizado com sucesso!', {
+        classNames: {
+          actionButton: '!bg-green-700',
+        },
+        action: {
+          label: 'Login',
+          onClick: () => router.replace('/sign-in'),
+        },
+      })
+    } else if (state.message) {
+      toast.error(state.message)
+    }
+  }, [state, router])
+
   const [avatar, setAvatar] = useState<string | null>(null)
   const [phone, setPhone] = useState('')
   const [passwordShown, setPasswordShown] = useState(false)
@@ -70,7 +99,7 @@ export const SignUpForm = () => {
   }
 
   return (
-    <form method="POST" className="space-y-12">
+    <form action={formState} className="space-y-12">
       <fieldset className="space-y-5">
         <legend className="font-dm-sans text-title-sm text-gray-500">
           Perfil
@@ -78,7 +107,7 @@ export const SignUpForm = () => {
         <div>
           <label
             htmlFor="avatar"
-            className="size-30 flex cursor-pointer items-center justify-center overflow-hidden rounded-2xl bg-shape"
+            className="flex size-30 cursor-pointer items-center justify-center overflow-hidden rounded-2xl bg-shape"
           >
             {avatar ? (
               <Image
@@ -199,9 +228,18 @@ export const SignUpForm = () => {
         </Input.Root>
       </fieldset>
 
-      <Button>
-        Cadastrar
-        <ArrowRight02Icon className="ml-auto size-6 text-white" />
+      <Button disabled={isPending}>
+        {isPending ? (
+          <>
+            Carregando...
+            <Loading01Icon className="ml-auto size-6 animate-spin text-white" />
+          </>
+        ) : (
+          <>
+            Cadastrar
+            <ArrowRight02Icon className="ml-auto size-6 text-white" />
+          </>
+        )}
       </Button>
     </form>
   )
