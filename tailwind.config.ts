@@ -118,6 +118,7 @@ const config: Config = {
         xl: '10px',
         '2xl': '12px',
         '4xl': '2rem',
+        card: '20px',
       },
       spacing: {
         '30': '7.5rem',
@@ -128,6 +129,9 @@ const config: Config = {
       },
       height: {
         '0.25': '1px',
+      },
+      margin: {
+        '42': '168px',
       },
       padding: {
         '2.5': '10px',
