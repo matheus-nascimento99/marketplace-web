@@ -107,17 +107,23 @@ export const SignUpForm = () => {
         <div>
           <label
             htmlFor="avatar"
-            className="flex size-30 cursor-pointer items-center justify-center overflow-hidden rounded-2xl bg-shape"
+            className="relative flex size-30 cursor-pointer items-center justify-center overflow-hidden rounded-2xl bg-shape"
           >
             {avatar ? (
-              <Image
-                src={avatar}
-                className="h-full w-full object-contain"
-                width={120}
-                height={120}
-                quality={100}
-                alt="Avatar picture"
-              />
+              <>
+                <div className="absolute flex h-full w-full items-center justify-center bg-black/60 opacity-0 transition-opacity hover:opacity-100">
+                  <ImageUploadIcon className="size-8 text-white" />
+                </div>
+
+                <Image
+                  src={avatar}
+                  className="h-full w-full object-contain"
+                  width={120}
+                  height={120}
+                  quality={100}
+                  alt="Avatar picture"
+                />
+              </>
             ) : (
               <ImageUploadIcon className="size-8 text-orange-base" />
             )}

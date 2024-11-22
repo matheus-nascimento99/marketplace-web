@@ -15,7 +15,7 @@ const config: Config = {
         },
         blue: {
           light: '#D7EFF9',
-          base: '#5EC5FD',
+          base: 'var(--blue-base)',
           dark: '#009CF0',
         },
         white: '#FFFFFF',
@@ -23,7 +23,7 @@ const config: Config = {
         shape: '#F5EAEA',
         gray: {
           100: '#ADADAD',
-          200: '#949494',
+          200: 'var(--gray-200)',
           300: '#666666',
           400: '#3D3D3D',
           500: '#1D1D1D',
@@ -143,4 +143,5 @@ const config: Config = {
   },
   plugins: [],
 }
+
 export default config

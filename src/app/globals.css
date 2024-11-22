@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --blue-base: #5EC5FD;
+  --gray-200: #949494;
+}
+
 ::-webkit-scrollbar {
   width: 8px;
   background: #e2c8bf; /* or add it to the track */

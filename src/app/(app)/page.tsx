@@ -1,5 +1,6 @@
 import { AdvertisedProductsCard } from './advertised-products-card'
 import { ProductsSoldCard } from './products-sold-card'
+import { VisitorsByDayCard } from './visitors-by-day-card'
 import { VisitorsCard } from './visitors-card'
 
 export default function HomePage() {
@@ -16,7 +17,7 @@ export default function HomePage() {
       <div className="grid grid-cols-4 grid-rows-3 gap-x-6 gap-y-4">
         <ProductsSoldCard />
 
-        <div className="col-span-3 row-span-3"></div>
+        <VisitorsByDayCard />
 
         <AdvertisedProductsCard />
 

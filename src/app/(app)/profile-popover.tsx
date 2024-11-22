@@ -35,6 +35,10 @@ export const ProfilePopover = () => {
                 src="https://github.com/matheus-nascimento99.png"
                 alt="Profile avatar"
               />
+
+              <Avatar.Fallback className="flex h-full w-full items-center justify-center bg-transparent font-dm-sans text-title-sm text-gray-300">
+                MN
+              </Avatar.Fallback>
             </Avatar.Root>
 
             <span className="align-middle text-body-sm text-gray-300">
