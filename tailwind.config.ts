@@ -118,6 +118,7 @@ const config: Config = {
         xl: '10px',
         '2xl': '12px',
         '4xl': '2rem',
+        'product-card': '16px',
         card: '20px',
       },
       spacing: {
@@ -126,9 +127,13 @@ const config: Config = {
       width: {
         '23': '90px',
         '42': '168px',
+        '50': '200px',
+        'product-card': '331px',
+        'product-image': '415px',
       },
       height: {
         '0.25': '1px',
+        'product-image': '340px',
       },
       margin: {
         '42': '168px',
@@ -138,6 +143,21 @@ const config: Config = {
       },
       gap: {
         '0.25': '0.104166667rem',
+      },
+      keyframes: {
+        'slide-down-and-fade': {
+          from: {
+            opacity: '0',
+            transform: 'translateY(-2px)',
+          },
+          to: {
+            opacity: '1',
+            transform: 'translateY(0)',
+          },
+        },
+      },
+      animation: {
+        slide: 'slide-down-and-fade 400ms cubic-bezier(0.16, 1, 0.3, 1)',
       },
     },
   },

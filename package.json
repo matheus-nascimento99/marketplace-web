@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -11,6 +11,7 @@
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.1",
     "@radix-ui/react-popover": "^1.1.2",
+    "@radix-ui/react-select": "^2.1.2",
     "@radix-ui/react-separator": "^1.1.0",
     "babel-plugin-react-compiler": "^0.0.0-experimental-734b737-20241003",
     "date-fns": "^4.1.0",
@@ -19,6 +20,7 @@
     "react-dom": "^19.0.0-rc-1460d67c-20241003",
     "recharts": "^2.13.3",
     "sonner": "^1.5.0",
+    "tailwind-merge": "^2.5.4",
     "tailwind-variants": "^0.2.1"
   },
   "devDependencies": {

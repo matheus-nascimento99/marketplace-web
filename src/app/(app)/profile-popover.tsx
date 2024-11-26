@@ -25,7 +25,7 @@ export const ProfilePopover = () => {
       <Popover.Portal>
         <Popover.Content
           align="end"
-          className="w-42 gap-5 rounded-2xl bg-white p-4"
+          className="w-42 animate-slide gap-5 rounded-2xl bg-white p-4"
           sideOffset={12}
         >
           <div className="flex items-center gap-3">

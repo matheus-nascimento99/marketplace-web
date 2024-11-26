@@ -28,7 +28,7 @@ export default function SignUpPage() {
         <div className="mt-auto flex flex-col gap-5">
           <p className="text-body-md text-gray-300">Já tem uma conta?</p>
           <Link href="/sign-in">
-            <Button variant="outline" type="button">
+            <Button variant="outline" type="button" font="action-md">
               Acessar
               <ArrowRight02Icon className="ml-auto size-6 text-orange-base transition-colors group-hover:text-orange-dark" />
             </Button>

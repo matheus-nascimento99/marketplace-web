@@ -1,4 +1,5 @@
 import { ComponentProps, createContext, useContext, useId } from 'react'
+import { twMerge } from 'tailwind-merge'
 
 interface InputContextProps {
   id: string
@@ -21,10 +22,10 @@ export const Root = (
   )
 }
 
-const useInputId = () => useContext(InputContext)
+const useControlId = () => useContext(InputContext)
 
 export const Label = (props: ComponentProps<'label'>) => {
-  const { id } = useInputId()
+  const { id } = useControlId()
 
   return (
     <label
@@ -35,10 +36,13 @@ export const Label = (props: ComponentProps<'label'>) => {
   )
 }
 
-export const Content = (props: ComponentProps<'div'>) => {
+export const Content = ({ className, ...props }: ComponentProps<'div'>) => {
   return (
     <div
-      className="flex h-12 items-center gap-2 border-b border-b-gray-100 focus-within:border-b-gray-400"
+      className={twMerge(
+        'flex h-12 items-center gap-2 border-b border-b-gray-100 focus-within:border-b-gray-400',
+        className,
+      )}
       {...props}
     />
   )
@@ -48,12 +52,35 @@ export const Prefix = (props: ComponentProps<'div'>) => {
   return <div {...props} />
 }
 
-export const Control = (props: ComponentProps<'input'>) => {
-  const { id } = useInputId()
+export const ControlInput = ({
+  className,
+  ...props
+}: ComponentProps<'input'>) => {
+  const { id } = useControlId()
   return (
     <input
       id={id}
-      className="w-full text-body-md placeholder:text-gray-200 focus:caret-orange-base focus:outline-none"
+      className={twMerge(
+        'w-full text-body-md text-gray-400 placeholder:text-gray-200 focus:caret-orange-base focus:outline-none',
+        className,
+      )}
+      {...props}
+    />
+  )
+}
+
+export const ControlTextArea = ({
+  className,
+  ...props
+}: ComponentProps<'textarea'>) => {
+  const { id } = useControlId()
+  return (
+    <textarea
+      id={id}
+      className={twMerge(
+        'w-full resize-none text-body-md text-gray-400 placeholder:text-gray-200 focus:caret-orange-base focus:outline-none',
+        className,
+      )}
       {...props}
     />
   )

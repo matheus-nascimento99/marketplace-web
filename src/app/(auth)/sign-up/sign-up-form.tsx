@@ -104,10 +104,10 @@ export const SignUpForm = () => {
         <legend className="font-dm-sans text-title-sm text-gray-500">
           Perfil
         </legend>
-        <div>
+        <div className="size-30">
           <label
             htmlFor="avatar"
-            className="relative flex size-30 cursor-pointer items-center justify-center overflow-hidden rounded-2xl bg-shape"
+            className="relative flex h-full cursor-pointer items-center justify-center overflow-hidden rounded-2xl bg-shape"
           >
             {avatar ? (
               <>
@@ -131,6 +131,7 @@ export const SignUpForm = () => {
           <input
             type="file"
             id="avatar"
+            accept="image/png, image/jpeg, image/jpg"
             className="sr-only"
             onChange={handleProfileAvatarChange}
           />
@@ -141,7 +142,7 @@ export const SignUpForm = () => {
             <Input.Prefix>
               <UserIcon className="size-6 text-orange-base group-has-[:placeholder-shown]:text-gray-200" />
             </Input.Prefix>
-            <Input.Control
+            <Input.ControlInput
               type="text"
               name="name"
               placeholder="Seu nome completo"
@@ -154,7 +155,7 @@ export const SignUpForm = () => {
             <Input.Prefix>
               <CallIcon className="size-6 text-orange-base group-has-[:placeholder-shown]:text-gray-200" />
             </Input.Prefix>
-            <Input.Control
+            <Input.ControlInput
               type="tel"
               name="telephone"
               placeholder="(00) 00000-0000"
@@ -175,7 +176,7 @@ export const SignUpForm = () => {
             <Input.Prefix>
               <Mail02Icon className="size-6 text-orange-base group-has-[:placeholder-shown]:text-gray-200" />
             </Input.Prefix>
-            <Input.Control
+            <Input.ControlInput
               type="text"
               name="email"
               placeholder="Seu e-mail de acesso"
@@ -188,7 +189,7 @@ export const SignUpForm = () => {
             <Input.Prefix>
               <AccessIcon className="size-6 text-orange-base group-has-[:placeholder-shown]:text-gray-200" />
             </Input.Prefix>
-            <Input.Control
+            <Input.ControlInput
               ref={passwordInputRef}
               type="password"
               name="password"
@@ -213,7 +214,7 @@ export const SignUpForm = () => {
             <Input.Prefix>
               <AccessIcon className="size-6 text-orange-base group-has-[:placeholder-shown]:text-gray-200" />
             </Input.Prefix>
-            <Input.Control
+            <Input.ControlInput
               ref={confirmPasswordInputRef}
               type="password"
               name="password"
@@ -234,7 +235,7 @@ export const SignUpForm = () => {
         </Input.Root>
       </fieldset>
 
-      <Button disabled={isPending}>
+      <Button disabled={isPending} font="action-md">
         {isPending ? (
           <>
             Carregando...

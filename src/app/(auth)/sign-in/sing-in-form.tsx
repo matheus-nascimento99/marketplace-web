@@ -38,7 +38,7 @@ export const SignInForm = () => {
             <Input.Sufix>
               <Mail02Icon className="size-6 text-orange-base group-has-[:placeholder-shown]:text-gray-200" />
             </Input.Sufix>
-            <Input.Control
+            <Input.ControlInput
               type="text"
               name="email"
               placeholder="Seu e-mail cadastrado"
@@ -52,7 +52,7 @@ export const SignInForm = () => {
             <Input.Prefix>
               <AccessIcon className="size-6 text-orange-base group-has-[:placeholder-shown]:text-gray-200" />
             </Input.Prefix>
-            <Input.Control
+            <Input.ControlInput
               ref={inputRef}
               type="password"
               name="password"
@@ -73,7 +73,7 @@ export const SignInForm = () => {
         </Input.Root>
       </div>
 
-      <Button variant="primary" disabled={isPending}>
+      <Button disabled={isPending} font="action-md">
         {isPending ? (
           <>
             Carregando...

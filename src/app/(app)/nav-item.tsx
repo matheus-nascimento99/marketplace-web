@@ -18,7 +18,13 @@ export const NavItem = ({ icon: Icon, label, href }: NavItemProps) => {
 
   return (
     <Link href={href}>
-      <Button type="button" data-active={isActive} variant="ghost" size="sm">
+      <Button
+        type="button"
+        data-active={isActive}
+        variant="nav"
+        size="sm"
+        font="body-sm"
+      >
         <Icon className="size-5 text-gray-300 transition-colors group-hover:text-orange-base group-data-[active=true]:text-orange-base" />
         {label}
       </Button>

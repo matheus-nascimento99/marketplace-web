@@ -23,10 +23,12 @@ export const Header = () => {
       <Navigation />
 
       <div className="ml-auto flex items-center gap-4">
-        <Button size="sm">
-          <PlusSignIcon className="size-5 text-white" />
-          Novo produto
-        </Button>
+        <Link href={'/products/add'}>
+          <Button size="sm" font="action-sm">
+            <PlusSignIcon className="size-5 text-white" />
+            Novo produto
+          </Button>
+        </Link>
 
         <ProfilePopover />
       </div>
