@@ -32,7 +32,7 @@ export default function RootLayout({
         className={`${bodyFont.variable} ${headingFont.variable} bg-background font-sans antialiased`}
       >
         {children}
-        <Toaster richColors={true} />
+        <Toaster richColors={true} closeButton duration={3000} />
       </body>
     </html>
   )

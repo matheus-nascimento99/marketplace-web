@@ -13,8 +13,6 @@ import { Tick02Icon } from '@/ui/icons/tick-02'
 import * as Input from '@/ui/input'
 import { maskCurrency } from '@/utils/mask-currency'
 
-import { ProductStatusTag } from '../product-status-tag'
-
 export const AddProductForm = () => {
   const router = useRouter()
 

@@ -140,6 +140,7 @@ const config: Config = {
       },
       padding: {
         '2.5': '10px',
+        'text-error': '6px',
       },
       gap: {
         '0.25': '0.104166667rem',

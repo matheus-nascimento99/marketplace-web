@@ -1,23 +1,35 @@
 'use client'
-import { useActionState, useRef, useState } from 'react'
+import { useActionState, useEffect, useRef, useState } from 'react'
+import { toast } from 'sonner'
 
 import { Button } from '@/ui/button'
 import { AccessIcon } from '@/ui/icons/access'
+import { AlertCircleIcon } from '@/ui/icons/alert-circle'
 import { ArrowRight02Icon } from '@/ui/icons/arrow-right-02'
 import { Loading01Icon } from '@/ui/icons/loading-01'
 import { Mail02Icon } from '@/ui/icons/mail-02'
 import { ViewIcon } from '@/ui/icons/view'
 import { ViewOffIcon } from '@/ui/icons/view-off'
 import * as Input from '@/ui/input'
+import { DEFAULT_ACTION_STATE } from '@/utils/action-state'
 
-import { signIn } from './actions/sign-in'
+import { signInAction } from './actions/sign-in'
 
 export const SignInForm = () => {
-  const [state, formAction, isPending] = useActionState(signIn, null)
+  const [state, formAction, isPending] = useActionState(
+    signInAction,
+    DEFAULT_ACTION_STATE,
+  )
 
   const [passwordShown, setPasswordShown] = useState(false)
 
   const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (!state.success && state.message) {
+      toast.error(state.message)
+    }
+  }, [state])
 
   const handleDisplayPassword = () => {
     if (passwordShown) {
@@ -32,29 +44,55 @@ export const SignInForm = () => {
   return (
     <form action={formAction} className="space-y-12">
       <div className="space-y-5">
-        <Input.Root>
+        <Input.Root
+          data-invalid={
+            state.field_errors && Object.hasOwn(state.field_errors, 'email')
+          }
+        >
           <Input.Label>E-mail</Input.Label>
           <Input.Content>
             <Input.Sufix>
-              <Mail02Icon className="size-6 text-orange-base group-has-[:placeholder-shown]:text-gray-200" />
+              <Mail02Icon className="size-6 text-orange-base group-has-[:placeholder-shown]:text-gray-200 group-data-[invalid=true]:text-danger" />
             </Input.Sufix>
             <Input.ControlInput
               type="text"
+              defaultValue={
+                state.payload && state.payload.email
+                  ? state.payload.email.toString()
+                  : ''
+              }
               name="email"
               placeholder="Seu e-mail cadastrado"
               autoFocus={true}
             />
           </Input.Content>
+          {state.field_errors &&
+            state.field_errors.email &&
+            state.field_errors.email.map((error, index) => (
+              <Input.Error key={index}>
+                <AlertCircleIcon className="size-4 text-danger" />
+                {error}
+              </Input.Error>
+            ))}
         </Input.Root>
-        <Input.Root>
+        <Input.Root
+          data-invalid={
+            state.field_errors && Object.hasOwn(state.field_errors, 'password')
+          }
+        >
           <Input.Label>Senha</Input.Label>
           <Input.Content>
             <Input.Prefix>
-              <AccessIcon className="size-6 text-orange-base group-has-[:placeholder-shown]:text-gray-200" />
+              <AccessIcon className="size-6 text-orange-base group-has-[:placeholder-shown]:text-gray-200 group-data-[invalid=true]:text-danger" />
             </Input.Prefix>
             <Input.ControlInput
               ref={inputRef}
               type="password"
+              defaultValue={
+                state.payload && state.payload.password
+                  ? state.payload.password.toString()
+                  : ''
+              }
               name="password"
               placeholder="Sua senha de acesso"
             />
@@ -70,6 +108,14 @@ export const SignInForm = () => {
               </button>
             </Input.Sufix>
           </Input.Content>
+          {state.field_errors &&
+            state.field_errors.password &&
+            state.field_errors.password.map((error, index) => (
+              <Input.Error key={index}>
+                <AlertCircleIcon className="size-4 text-danger" />
+                {error}
+              </Input.Error>
+            ))}
         </Input.Root>
       </div>
 

@@ -7,18 +7,13 @@ interface InputContextProps {
 
 const InputContext = createContext({} as InputContextProps)
 
-export const Root = (
-  { children }: { children: React.ReactNode },
-  props: ComponentProps<'div'>,
-) => {
+export const Root = ({ children, ...props }: ComponentProps<'div'>) => {
   const id = useId()
 
   return (
-    <InputContext.Provider value={{ id }}>
-      <div className="group flex flex-col" {...props}>
-        {children}
-      </div>
-    </InputContext.Provider>
+    <div className="group flex flex-col" {...props}>
+      <InputContext.Provider value={{ id }}>{children}</InputContext.Provider>
+    </div>
   )
 }
 
@@ -81,6 +76,15 @@ export const ControlTextArea = ({
         'w-full resize-none text-body-md text-gray-400 placeholder:text-gray-200 focus:caret-orange-base focus:outline-none',
         className,
       )}
+      {...props}
+    />
+  )
+}
+
+export const Error = (props: ComponentProps<'p'>) => {
+  return (
+    <p
+      className="py-text-error flex select-none items-center gap-1 text-body-xs text-danger"
       {...props}
     />
   )
