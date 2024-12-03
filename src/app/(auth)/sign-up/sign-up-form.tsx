@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { ChangeEvent, useActionState, useEffect, useRef, useState } from 'react'
+import { ChangeEvent, useActionState, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 import { Button } from '@/ui/button'
@@ -50,9 +50,6 @@ export const SignUpForm = () => {
   const [passwordShown, setPasswordShown] = useState(false)
   const [confirmPasswordShown, setConfirmPasswordShown] = useState(false)
 
-  const passwordInputRef = useRef<HTMLInputElement>(null)
-  const confirmPasswordInputRef = useRef<HTMLInputElement>(null)
-
   const handleProfileAvatarChange = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
 
@@ -79,22 +76,10 @@ export const SignUpForm = () => {
   }
 
   const handleDisplayPassword = () => {
-    if (passwordShown) {
-      passwordInputRef.current?.setAttribute('type', 'password')
-    } else {
-      passwordInputRef.current?.setAttribute('type', 'text')
-    }
-
     setPasswordShown(!passwordShown)
   }
 
   const handleDisplayConfirmPassword = () => {
-    if (confirmPasswordShown) {
-      confirmPasswordInputRef.current?.setAttribute('type', 'password')
-    } else {
-      confirmPasswordInputRef.current?.setAttribute('type', 'text')
-    }
-
     setConfirmPasswordShown(!confirmPasswordShown)
   }
 
@@ -190,8 +175,7 @@ export const SignUpForm = () => {
               <AccessIcon className="size-6 text-orange-base group-has-[:placeholder-shown]:text-gray-200" />
             </Input.Prefix>
             <Input.ControlInput
-              ref={passwordInputRef}
-              type="password"
+              type={!passwordShown ? 'password' : 'text'}
               name="password"
               placeholder="Senha de acesso"
             />
@@ -215,8 +199,7 @@ export const SignUpForm = () => {
               <AccessIcon className="size-6 text-orange-base group-has-[:placeholder-shown]:text-gray-200" />
             </Input.Prefix>
             <Input.ControlInput
-              ref={confirmPasswordInputRef}
-              type="password"
+              type={!confirmPasswordShown ? 'password' : 'text'}
               name="password"
               placeholder="Confirme a senha"
             />

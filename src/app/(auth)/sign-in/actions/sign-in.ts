@@ -35,6 +35,7 @@ export const signInAction = async (_: ActionState, form: FormData) => {
   try {
     await signIn({ email, password })
   } catch (error) {
+    console.error(error)
     const isHTTPError = error instanceof HTTPError
     const message =
       isHTTPError && error.response.status < 500

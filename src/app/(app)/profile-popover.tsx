@@ -3,10 +3,12 @@
 import * as Avatar from '@radix-ui/react-avatar'
 import * as Popover from '@radix-ui/react-popover'
 import * as Separator from '@radix-ui/react-separator'
-import Link from 'next/link'
+import { toast } from 'sonner'
 
+import { Button } from '@/ui/button'
 import { Logout01Icon } from '@/ui/icons/logout-01'
 
+import { signOutAction } from './actions/sign-out'
 export const ProfilePopover = () => {
   return (
     <Popover.Root>
@@ -51,14 +53,23 @@ export const ProfilePopover = () => {
             orientation="horizontal"
           />
 
-          <Link href={'/sign-in'}>
-            <div className="flex">
-              <span className="align-top text-action-sm text-orange-base">
-                Sair
-              </span>
-              <Logout01Icon className="ml-auto size-5 text-orange-base" />
-            </div>
-          </Link>
+          <Button
+            variant="link"
+            size="inset"
+            font="action-sm"
+            type="button"
+            className="w-full"
+            onClick={async () => {
+              const result = await signOutAction()
+
+              if (result.message) {
+                toast.error(result.message)
+              }
+            }}
+          >
+            Sair
+            <Logout01Icon className="ml-auto size-5 text-orange-base" />
+          </Button>
         </Popover.Content>
       </Popover.Portal>
     </Popover.Root>

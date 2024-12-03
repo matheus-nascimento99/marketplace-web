@@ -1,5 +1,5 @@
 'use client'
-import { useActionState, useEffect, useRef, useState } from 'react'
+import { useActionState, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 import { Button } from '@/ui/button'
@@ -23,8 +23,6 @@ export const SignInForm = () => {
 
   const [passwordShown, setPasswordShown] = useState(false)
 
-  const inputRef = useRef<HTMLInputElement>(null)
-
   useEffect(() => {
     if (!state.success && state.message) {
       toast.error(state.message)
@@ -32,12 +30,6 @@ export const SignInForm = () => {
   }, [state])
 
   const handleDisplayPassword = () => {
-    if (passwordShown) {
-      inputRef.current?.setAttribute('type', 'password')
-    } else {
-      inputRef.current?.setAttribute('type', 'text')
-    }
-
     setPasswordShown(!passwordShown)
   }
 
@@ -86,8 +78,7 @@ export const SignInForm = () => {
               <AccessIcon className="size-6 text-orange-base group-has-[:placeholder-shown]:text-gray-200 group-data-[invalid=true]:text-danger" />
             </Input.Prefix>
             <Input.ControlInput
-              ref={inputRef}
-              type="password"
+              type={!passwordShown ? 'password' : 'text'}
               defaultValue={
                 state.payload && state.payload.password
                   ? state.payload.password.toString()

@@ -18,7 +18,7 @@ const button = tv({
         'data-[active=true]:bg-shape data-[active=true]:text-orange-base',
       ],
       ghost: 'text-gray-300 bg-shape',
-      link: 'text-orange-base flex items-center gap-2',
+      link: 'text-orange-base gap-2',
     },
     size: {
       default: 'h-14 w-full px-5 py-4',
