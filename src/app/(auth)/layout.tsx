@@ -1,10 +1,19 @@
 import Image from 'next/image'
+import { redirect, RedirectType } from 'next/navigation'
 
-export default function AuthLayout({
+import { isAuthenticated } from '@/auth/is-authenticated'
+
+export default async function AuthLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const isAuth = await isAuthenticated()
+
+  if (isAuth) {
+    redirect('/', RedirectType.replace)
+  }
+
   return (
     <main className="m-auto grid min-h-screen max-w-[1366px] grid-cols-2">
       <section className="space-y-14">

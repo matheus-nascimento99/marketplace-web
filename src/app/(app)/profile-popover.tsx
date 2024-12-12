@@ -10,6 +10,14 @@ import { Logout01Icon } from '@/ui/icons/logout-01'
 
 import { signOutAction } from './actions/sign-out'
 export const ProfilePopover = () => {
+  const handleLogout = async () => {
+    const result = await signOutAction()
+
+    if (result.message) {
+      toast.error(result.message)
+    }
+  }
+
   return (
     <Popover.Root>
       <Popover.Trigger>
@@ -59,13 +67,7 @@ export const ProfilePopover = () => {
             font="action-sm"
             type="button"
             className="w-full"
-            onClick={async () => {
-              const result = await signOutAction()
-
-              if (result.message) {
-                toast.error(result.message)
-              }
-            }}
+            onClick={handleLogout}
           >
             Sair
             <Logout01Icon className="ml-auto size-5 text-orange-base" />

@@ -1,4 +1,5 @@
 'use client'
+import { useSearchParams } from 'next/navigation'
 import { useActionState, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
@@ -33,6 +34,10 @@ export const SignInForm = () => {
     setPasswordShown(!passwordShown)
   }
 
+  const searchParams = useSearchParams()
+
+  const email = searchParams.get('email')
+
   return (
     <form action={formAction} className="space-y-12">
       <div className="space-y-5">
@@ -49,9 +54,9 @@ export const SignInForm = () => {
             <Input.ControlInput
               type="text"
               defaultValue={
-                state.payload && state.payload.email
+                !state.success && state.payload && state.payload.email
                   ? state.payload.email.toString()
-                  : ''
+                  : email || ''
               }
               name="email"
               placeholder="Seu e-mail cadastrado"
@@ -80,7 +85,7 @@ export const SignInForm = () => {
             <Input.ControlInput
               type={!passwordShown ? 'password' : 'text'}
               defaultValue={
-                state.payload && state.payload.password
+                !state.success && state.payload && state.payload.password
                   ? state.payload.password.toString()
                   : ''
               }

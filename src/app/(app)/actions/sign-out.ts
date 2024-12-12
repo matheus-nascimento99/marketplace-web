@@ -1,12 +1,12 @@
 'use server'
 
+import { cookies } from 'next/headers'
 import { redirect, RedirectType } from 'next/navigation'
-
-import { signOut } from '../requests/sign-out'
 
 export const signOutAction = async () => {
   try {
-    await signOut()
+    const cookieStore = await cookies()
+    cookieStore.delete('auth')
   } catch (error) {
     console.error(error)
 

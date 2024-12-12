@@ -1,5 +1,6 @@
 'use server'
 import { HTTPError } from 'ky'
+import { cookies } from 'next/headers'
 import { redirect, RedirectType } from 'next/navigation'
 import { z } from 'zod'
 
@@ -33,7 +34,13 @@ export const signInAction = async (_: ActionState, form: FormData) => {
   const { email, password } = data.data
 
   try {
-    await signIn({ email, password })
+    const { accessToken } = await signIn({ email, password })
+
+    const cookieStorage = await cookies()
+
+    cookieStorage.set('auth', accessToken, {
+      path: '/',
+    })
   } catch (error) {
     console.error(error)
     const isHTTPError = error instanceof HTTPError

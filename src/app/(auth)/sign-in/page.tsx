@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function SignInPage() {
   return (
-    <div className="flex h-full max-h-[768px] flex-col gap-12 rounded-4xl bg-white px-20 py-16">
+    <div className="flex h-full max-h-[768px] w-full flex-col gap-12 rounded-4xl bg-white px-20 py-16">
       <div className="space-y-2">
         <h1 className="font-dm-sans text-title-md text-gray-500">
           Acesse sua conta

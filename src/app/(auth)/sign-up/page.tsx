@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function SignUpPage() {
   return (
-    <div className="overflow-hidden rounded-4xl">
+    <div className="w-full overflow-hidden rounded-4xl">
       <div className="flex h-full max-h-[768px] flex-col gap-12 overflow-y-scroll bg-white px-20 py-16">
         <div className="space-y-2">
           <h1 className="font-dm-sans text-title-md text-gray-500">
