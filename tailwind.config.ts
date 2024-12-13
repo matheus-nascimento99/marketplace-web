@@ -134,6 +134,7 @@ const config: Config = {
       height: {
         '0.25': '1px',
         'product-image': '340px',
+        '88': '360px',
       },
       margin: {
         '42': '168px',

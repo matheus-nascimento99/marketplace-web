@@ -8,15 +8,18 @@ import { toast } from 'sonner'
 
 import { Button } from '@/ui/button'
 import { Logout01Icon } from '@/ui/icons/logout-01'
+import { Skeleton } from '@/ui/skeleton'
 import { getNameInitials } from '@/utils/get-name-initials'
 
 import { signOutAction } from './actions/sign-out'
 import { getProfile } from './requests/get-profile'
 export const ProfilePopover = () => {
-  const { data: profile } = useQuery({
+  const { data: profile, error } = useQuery({
     queryKey: ['get-profile'],
     queryFn: getProfile,
   })
+
+  if (error) toast.error(error.message)
 
   const handleLogout = async () => {
     const result = await signOutAction()
@@ -29,18 +32,22 @@ export const ProfilePopover = () => {
   return (
     <Popover.Root>
       <Popover.Trigger>
-        <Avatar.Root className="block size-12 overflow-hidden rounded-2xl ring-1 ring-shape">
-          {profile?.seller.avatar && (
-            <Avatar.Image
-              className="size-12 object-contain"
-              src={profile.seller.avatar.url}
-              alt="Profile avatar"
-            />
-          )}
-          <Avatar.Fallback className="flex h-full w-full items-center justify-center bg-transparent font-dm-sans text-title-sm text-gray-300">
-            {profile ? getNameInitials(profile.seller.name) : ''}
-          </Avatar.Fallback>
-        </Avatar.Root>
+        {profile ? (
+          <Avatar.Root className="block size-12 overflow-hidden rounded-2xl ring-1 ring-shape">
+            {profile?.seller.avatar && (
+              <Avatar.Image
+                className="size-12 object-contain"
+                src={profile.seller.avatar.url}
+                alt="Profile avatar"
+              />
+            )}
+            <Avatar.Fallback className="flex h-full w-full items-center justify-center bg-transparent font-dm-sans text-title-sm text-gray-300">
+              {profile ? getNameInitials(profile.seller.name) : ''}
+            </Avatar.Fallback>
+          </Avatar.Root>
+        ) : (
+          <Skeleton className="block size-12 rounded-2xl" />
+        )}
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Content
@@ -49,23 +56,31 @@ export const ProfilePopover = () => {
           sideOffset={12}
         >
           <div className="flex items-center gap-3">
-            <Avatar.Root className="block size-8 flex-shrink-0 overflow-hidden rounded-lg ring-1 ring-shape">
-              {profile?.seller.avatar && (
-                <Avatar.Image
-                  className="size-8 object-contain"
-                  src={profile.seller.avatar.url}
-                  alt="Profile avatar"
-                />
-              )}
+            {profile ? (
+              <Avatar.Root className="block size-8 flex-shrink-0 overflow-hidden rounded-lg ring-1 ring-shape">
+                {profile?.seller.avatar && (
+                  <Avatar.Image
+                    className="size-8 object-contain"
+                    src={profile.seller.avatar.url}
+                    alt="Profile avatar"
+                  />
+                )}
 
-              <Avatar.Fallback className="flex h-full w-full items-center justify-center bg-transparent font-dm-sans text-title-sm text-gray-300">
-                {profile ? getNameInitials(profile.seller.name) : ''}
-              </Avatar.Fallback>
-            </Avatar.Root>
+                <Avatar.Fallback className="flex h-full w-full items-center justify-center bg-transparent font-dm-sans text-title-sm text-gray-300">
+                  {profile ? getNameInitials(profile.seller.name) : ''}
+                </Avatar.Fallback>
+              </Avatar.Root>
+            ) : (
+              <Skeleton className="block size-8 flex-shrink-0 rounded-lg" />
+            )}
 
-            <span className="line-clamp-2 align-middle text-body-sm text-gray-300">
-              {profile?.seller.name}
-            </span>
+            {profile ? (
+              <span className="line-clamp-2 align-middle text-body-sm text-gray-300">
+                {profile?.seller.name}
+              </span>
+            ) : (
+              <Skeleton className="h-8 rounded-lg" />
+            )}
           </div>
 
           <Separator.Root

@@ -13,9 +13,11 @@ import {
 
 import { UserMultipleIcon } from '@/ui/icons/user-multiple'
 
+import { GetMonthlyViewsResponse } from './requests/get-monthly-views'
+
 interface DataPoint {
   date: string
-  value: number
+  amount: number
 }
 
 interface CustomTooltipProps {
@@ -28,38 +30,11 @@ interface CustomTooltipProps {
   label?: string
 }
 
-export const VisitorsByDayChart: React.FC = () => {
-  const generateLast30Days = (): DataPoint[] => {
-    const data: DataPoint[] = []
-    const today = new Date()
+type VisitorsByDayChartProps = {
+  views: GetMonthlyViewsResponse['viewsPerDay']
+}
 
-    // Set endDate to the day before today
-    const endDate = new Date(today)
-    endDate.setDate(today.getDate())
-
-    // Set startDate to 29 days before endDate (to include 30 days total)
-    const startDate = new Date(endDate)
-    startDate.setDate(endDate.getDate() - 29)
-
-    const currentDate = new Date(startDate)
-
-    // Format dates to remove time component
-    currentDate.setHours(0, 0, 0, 0)
-    endDate.setHours(0, 0, 0, 0)
-
-    // eslint-disable-next-line no-unmodified-loop-condition
-    while (currentDate <= endDate) {
-      data.push({
-        date: currentDate.toISOString().split('T')[0],
-        value: Math.floor(Math.random() * 150),
-      })
-      currentDate.setDate(currentDate.getDate() + 1)
-    }
-    return data
-  }
-
-  const data = generateLast30Days()
-
+export const VisitorsByDayChart = ({ views }: VisitorsByDayChartProps) => {
   const formatXAxis = (dateStr: string): string => {
     const date = new Date(dateStr)
     return String(date.getDate())
@@ -109,7 +84,7 @@ export const VisitorsByDayChart: React.FC = () => {
   return (
     <ResponsiveContainer width="100%" height="100%" className="text-body-xs">
       <LineChart
-        data={data}
+        data={views}
         margin={{ top: 20, right: 8, left: -20, bottom: 20 }}
       >
         <CartesianGrid
@@ -140,7 +115,7 @@ export const VisitorsByDayChart: React.FC = () => {
         <Tooltip content={<CustomTooltip />} />
         <Line
           type="monotone"
-          dataKey="value"
+          dataKey="amount"
           stroke="var(--blue-base)"
           strokeWidth={3}
           dot={false}
