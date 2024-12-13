@@ -1,10 +1,10 @@
 'use server'
-import { HTTPError } from 'ky'
 import { cookies } from 'next/headers'
 import { redirect, RedirectType } from 'next/navigation'
 import { z } from 'zod'
 
 import { ActionState } from '@/utils/action-state'
+import { handleHttpError } from '@/utils/handle-http-error'
 
 import { signIn } from '../requests/sign-in'
 
@@ -34,7 +34,10 @@ export const signInAction = async (_: ActionState, form: FormData) => {
   const { email, password } = data.data
 
   try {
-    const { accessToken } = await signIn({ email, password })
+    const { accessToken } = await signIn({
+      email,
+      password,
+    })
 
     const cookieStorage = await cookies()
 
@@ -42,17 +45,10 @@ export const signInAction = async (_: ActionState, form: FormData) => {
       path: '/',
     })
   } catch (error) {
-    console.error(error)
-    const isHTTPError = error instanceof HTTPError
-    const message =
-      isHTTPError && error.response.status < 500
-        ? 'Credenciais inválidas'
-        : 'Erro ao realizar o login. Tente novamente mais tarde'
+    const httpError = await handleHttpError(error)
 
     return {
-      success: false,
-      message,
-      field_errors: null,
+      ...httpError,
       payload: fields,
     }
   }

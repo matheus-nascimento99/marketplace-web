@@ -3,10 +3,10 @@ import ky from 'ky'
 
 import { signOutAction } from '@/app/(app)/actions/sign-out'
 import { isAuthenticated } from '@/auth/is-authenticated'
-import { env } from '@/env/env'
+import { env } from '@/env'
 
 export const api = ky.create({
-  prefixUrl: env.API_BASE_URL,
+  prefixUrl: env.NEXT_PUBLIC_API_BASE_URL,
   credentials: 'include',
   hooks: {
     beforeRequest: [

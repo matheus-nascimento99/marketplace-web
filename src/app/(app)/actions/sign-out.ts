@@ -8,8 +8,6 @@ export const signOutAction = async () => {
     const cookieStore = await cookies()
     cookieStore.delete('auth')
   } catch (error) {
-    console.error(error)
-
     const message = 'Erro ao realizar o logout. Tente novamente mais tarde'
 
     return {

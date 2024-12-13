@@ -1,11 +1,11 @@
 'use server'
 
-import { HTTPError } from 'ky'
 import { z } from 'zod'
 
 import { uploadAttachments } from '@/attachments/upload-attachments'
 import { ActionState } from '@/utils/action-state'
 import { capitalize } from '@/utils/capitalize'
+import { handleHttpError } from '@/utils/handle-http-error'
 import { harden } from '@/utils/harden'
 import {
   ACCEPTED_IMAGE_TYPES,
@@ -29,7 +29,10 @@ const signUpSchema = z
       .string()
       .trim()
       .min(1, 'Por favor, forneça seu nome')
-      .transform((value) => capitalize(value)),
+      .transform((value) => capitalize(value))
+      .refine((value) => value.split(' ').length > 1, {
+        message: 'Por favor, forneça seu nome completo',
+      }),
     phone: z
       .string()
       .trim()
@@ -40,7 +43,9 @@ const signUpSchema = z
       .trim()
       .email('Por favor, forneça um e-mail válido')
       .min(1, 'Por favor, forneça seu e-mail'),
-    password: z.string().min(1, 'Por favor, forneça sua senha'),
+    password: z
+      .string({ required_error: 'Por favor, forneça sua senha' })
+      .min(8, 'A senha deve ter no mínimo 8 caracteres'),
     passwordConfirmation: z
       .string({ required_error: 'Por favor, forneça a confirmação da senha' })
       .min(1, 'Por favor, forneça a confirmação da senha'),
@@ -90,30 +95,10 @@ export const signUpAction = async (_: ActionState, form: FormData) => {
       payload: fields,
     }
   } catch (error) {
-    console.error(error)
-    const isHTTPError = error instanceof HTTPError
-
-    let message: string | null = null
-
-    message = 'Erro ao realizar o login. Tente novamente mais tarde'
-
-    if (isHTTPError) {
-      const statusCode = error.response.status
-
-      switch (statusCode) {
-        case 404:
-          message = 'Avatar não encontrado'
-          break
-        case 409:
-          message = 'E-mail e/ou telefone já existem'
-          break
-      }
-    }
+    const httpError = await handleHttpError(error)
 
     return {
-      success: false,
-      message,
-      field_errors: null,
+      ...httpError,
       payload: fields,
     }
   }

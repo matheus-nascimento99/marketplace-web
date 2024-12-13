@@ -1,6 +1,7 @@
 import { redirect, RedirectType } from 'next/navigation'
 
 import { isAuthenticated } from '@/auth/is-authenticated'
+import { QueryClientProvider } from '@/contexts/query-client-provider'
 
 import { Header } from './header'
 
@@ -17,8 +18,10 @@ export default async function AppLayout({
 
   return (
     <main className="m-auto min-h-screen max-w-[1366px]">
-      <Header />
-      {children}
+      <QueryClientProvider>
+        <Header />
+        {children}
+      </QueryClientProvider>
     </main>
   )
 }
