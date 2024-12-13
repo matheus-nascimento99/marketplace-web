@@ -1,16 +1,8 @@
+import { Seller } from '@/app/dto/seller'
 import { api } from '@/lib/ky/api'
 
 export type GetProfileResponse = {
-  seller: {
-    id: string
-    name: string
-    phone: string
-    email: string
-    avatar: {
-      id: string
-      url: string
-    } | null
-  }
+  seller: Seller
 }
 
 export const getProfile = async () => {

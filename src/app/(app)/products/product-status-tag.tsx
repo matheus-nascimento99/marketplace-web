@@ -1,7 +1,7 @@
 const statuses = {
-  ANNOUNCED: { bg: 'bg-blue-dark', title: 'ANUNCIADO' },
-  SELLED: { bg: 'bg-success', title: 'VENDIDO' },
-  DEACTIVATED: { bg: 'bg-gray-300', title: 'DESATIVADO' },
+  available: { bg: 'bg-blue-dark', title: 'ANUNCIADO' },
+  sold: { bg: 'bg-success', title: 'VENDIDO' },
+  cancelled: { bg: 'bg-gray-300', title: 'DESATIVADO' },
 }
 
 type ProductStatusTagProps = {

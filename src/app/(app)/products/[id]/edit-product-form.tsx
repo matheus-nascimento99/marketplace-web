@@ -98,7 +98,7 @@ export const EditProductForm = () => {
             <legend className="text-title-sm text-gray-300">
               Dados do produto
             </legend>
-            <ProductStatusTag status="ANNOUNCED" />
+            <ProductStatusTag status="available" />
           </div>
 
           <div className="mt-6 space-y-5">

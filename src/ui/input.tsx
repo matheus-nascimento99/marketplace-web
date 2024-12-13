@@ -84,7 +84,7 @@ export const ControlTextArea = ({
 export const Error = (props: ComponentProps<'p'>) => {
   return (
     <p
-      className="py-text-error flex select-none items-center gap-1 text-body-xs text-danger"
+      className="flex select-none items-center gap-1 py-text-error text-body-xs text-danger"
       {...props}
     />
   )

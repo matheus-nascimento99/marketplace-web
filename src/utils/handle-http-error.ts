@@ -8,17 +8,33 @@ export const handleHttpError = async (
   error: unknown,
 ): Promise<Omit<ActionState, 'payload'>> => {
   const isHTTPError = error instanceof HTTPError
+  let fieldErrors: ActionState['field_errors'] = null
+  let message: ActionState['message'] = null
 
   if (isHTTPError) {
     const httpError = await error.response.json<ErrorResponse>()
-    const parsedHttpError = handleHttpError(httpError)
 
-    return parsedHttpError
+    message = httpError.message
+
+    if (httpError.errors) {
+      message = null
+      fieldErrors = httpError.errors.reduce(
+        (accumulator, currentValue) => {
+          if (accumulator) {
+            accumulator[currentValue.validation] = []
+            accumulator[currentValue.validation].push(currentValue.message)
+          }
+
+          return accumulator
+        },
+        {} as ActionState['field_errors'],
+      )
+    }
   }
 
   return {
     success: false,
-    message: 'Erro ao realizar o login. Tente novamente mais tarde',
-    field_errors: null,
+    message,
+    field_errors: fieldErrors,
   }
 }

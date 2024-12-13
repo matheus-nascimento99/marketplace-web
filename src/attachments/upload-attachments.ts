@@ -1,3 +1,4 @@
+import { Attachment } from '@/app/dto/attachment'
 import { api } from '@/lib/ky/api'
 
 export type UploadAttachmentsRequest = {
@@ -5,10 +6,7 @@ export type UploadAttachmentsRequest = {
 }
 
 export type UploadAttachmentsResponse = {
-  attachments: {
-    id: string
-    url: string
-  }[]
+  attachments: Attachment[]
 }
 
 export const uploadAttachments = async ({ file }: UploadAttachmentsRequest) => {

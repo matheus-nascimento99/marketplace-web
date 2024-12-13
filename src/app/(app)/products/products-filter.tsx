@@ -1,8 +1,10 @@
 'use client'
 
 import * as Select from '@radix-ui/react-select'
-import { useState } from 'react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { FormEvent, useState } from 'react'
 
+import { Product } from '@/app/dto/product'
 import { Button } from '@/ui/button'
 import { ArrowDown01Icon } from '@/ui/icons/arrow-down-01'
 import { Cancel01Icon } from '@/ui/icons/cancel-01'
@@ -12,7 +14,16 @@ import { Tick02Icon } from '@/ui/icons/tick-02'
 import * as Input from '@/ui/input'
 
 export const ProductsFilter = () => {
-  const [selectValue, setSelectValue] = useState<string>('')
+  const router = useRouter()
+  const pathname = usePathname()
+
+  const searchParams = useSearchParams()
+
+  const search = searchParams.get('search') ?? ''
+  const status = (searchParams.get('status') as Product['status']) ?? ''
+
+  const [productTitle, setProductTitle] = useState<string>(search)
+  const [selectValue, setSelectValue] = useState<string>(status)
 
   const handleClearSelectValue = () => {
     setSelectValue('')
@@ -22,8 +33,27 @@ export const ProductsFilter = () => {
     setSelectValue(value)
   }
 
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault()
+
+    const params = new URLSearchParams(searchParams.toString())
+
+    params.delete('search')
+    params.delete('status')
+
+    if (productTitle) {
+      params.set('search', productTitle)
+    }
+
+    if (selectValue) {
+      params.set('status', selectValue)
+    }
+
+    router.push(pathname + '?' + params)
+  }
+
   return (
-    <form>
+    <form onSubmit={handleSubmit}>
       <div className="space-y-5">
         <Input.Root>
           <Input.Content>
@@ -34,7 +64,8 @@ export const ProductsFilter = () => {
               type="text"
               name="product"
               placeholder="Pesquisar"
-              autoFocus={true}
+              value={productTitle}
+              onChange={(e) => setProductTitle(e.target.value)}
             />
           </Input.Content>
         </Input.Root>
@@ -75,7 +106,7 @@ export const ProductsFilter = () => {
             >
               <Select.Viewport>
                 <Select.Item
-                  value="ANNOUNCED"
+                  value="available"
                   className="flex justify-between px-4 py-3 hover:cursor-pointer hover:text-orange-dark hover:outline-none data-[state=checked]:text-orange-base"
                 >
                   <Select.ItemText>Anunciado</Select.ItemText>
@@ -85,7 +116,7 @@ export const ProductsFilter = () => {
                 </Select.Item>
 
                 <Select.Item
-                  value="SELLED"
+                  value="sold"
                   className="flex justify-between px-4 py-3 hover:cursor-pointer hover:text-orange-dark hover:outline-none data-[state=checked]:text-orange-base"
                 >
                   <Select.ItemText>Vendido</Select.ItemText>
@@ -95,7 +126,7 @@ export const ProductsFilter = () => {
                 </Select.Item>
 
                 <Select.Item
-                  value="DEACTIVATED"
+                  value="cancelled"
                   className="flex justify-between px-4 py-3 hover:cursor-pointer hover:text-orange-dark hover:outline-none data-[state=checked]:text-orange-base"
                 >
                   <Select.ItemText>Desativado</Select.ItemText>
@@ -108,7 +139,7 @@ export const ProductsFilter = () => {
           </Select.Portal>
         </Select.Root>
       </div>
-      <Button font="action-md" className="mt-10">
+      <Button font="action-md" className="mt-10 disabled:cursor-not-allowed">
         Aplicar filtro
       </Button>
     </form>

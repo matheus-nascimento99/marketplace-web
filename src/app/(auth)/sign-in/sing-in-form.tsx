@@ -115,7 +115,11 @@ export const SignInForm = () => {
         </Input.Root>
       </div>
 
-      <Button disabled={isPending} font="action-md">
+      <Button
+        disabled={isPending}
+        font="action-md"
+        className="disabled:cursor-wait"
+      >
         {isPending ? (
           <>
             Carregando...

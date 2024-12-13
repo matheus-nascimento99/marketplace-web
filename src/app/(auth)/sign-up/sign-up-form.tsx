@@ -331,7 +331,11 @@ export const SignUpForm = () => {
         </Input.Root>
       </fieldset>
 
-      <Button disabled={isPending} font="action-md">
+      <Button
+        disabled={isPending}
+        font="action-md"
+        className="disabled:cursor-wait"
+      >
         {isPending ? (
           <>
             Carregando...
