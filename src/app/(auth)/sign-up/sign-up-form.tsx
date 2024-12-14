@@ -150,16 +150,14 @@ export const SignUpForm = () => {
           </div>
         </div>
         <Input.Root
-          defaultValue={
-            !state.success && state.payload && state.payload.name
-              ? state.payload.name.toString()
-              : ''
+          data-invalid={
+            state.field_errors && Object.hasOwn(state.field_errors, 'name')
           }
         >
           <Input.Label>Nome</Input.Label>
           <Input.Content>
             <Input.Prefix>
-              <UserIcon className="size-6 text-orange-base group-has-[:placeholder-shown]:text-gray-200" />
+              <UserIcon className="size-6 text-orange-base group-has-[:placeholder-shown]:text-gray-200 group-data-[invalid=true]:text-danger" />
             </Input.Prefix>
             <Input.ControlInput
               type="text"
@@ -189,7 +187,7 @@ export const SignUpForm = () => {
           <Input.Label>Telefone</Input.Label>
           <Input.Content>
             <Input.Prefix>
-              <CallIcon className="size-6 text-orange-base group-has-[:placeholder-shown]:text-gray-200" />
+              <CallIcon className="size-6 text-orange-base group-has-[:placeholder-shown]:text-gray-200 group-data-[invalid=true]:text-danger" />
             </Input.Prefix>
             <Input.ControlInput
               type="tel"
@@ -222,7 +220,7 @@ export const SignUpForm = () => {
           <Input.Label>E-mail</Input.Label>
           <Input.Content>
             <Input.Prefix>
-              <Mail02Icon className="size-6 text-orange-base group-has-[:placeholder-shown]:text-gray-200" />
+              <Mail02Icon className="size-6 text-orange-base group-has-[:placeholder-shown]:text-gray-200 group-data-[invalid=true]:text-danger" />
             </Input.Prefix>
             <Input.ControlInput
               type="text"
@@ -252,7 +250,7 @@ export const SignUpForm = () => {
           <Input.Label>Senha</Input.Label>
           <Input.Content>
             <Input.Prefix>
-              <AccessIcon className="size-6 text-orange-base group-has-[:placeholder-shown]:text-gray-200" />
+              <AccessIcon className="size-6 text-orange-base group-has-[:placeholder-shown]:text-gray-200 group-data-[invalid=true]:text-danger" />
             </Input.Prefix>
             <Input.ControlInput
               type={!passwordShown ? 'password' : 'text'}
@@ -294,7 +292,7 @@ export const SignUpForm = () => {
           <Input.Label>Confirmar senha</Input.Label>
           <Input.Content>
             <Input.Prefix>
-              <AccessIcon className="size-6 text-orange-base group-has-[:placeholder-shown]:text-gray-200" />
+              <AccessIcon className="size-6 text-orange-base group-has-[:placeholder-shown]:text-gray-200 group-data-[invalid=true]:text-danger" />
             </Input.Prefix>
             <Input.ControlInput
               type={!confirmPasswordShown ? 'password' : 'text'}

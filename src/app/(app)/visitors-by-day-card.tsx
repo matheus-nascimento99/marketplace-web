@@ -49,7 +49,7 @@ export const VisitorsByDayCard = () => {
           <VisitorsByDayChart views={viewsPerDay} />
         </div>
       ) : (
-        <Skeleton className="h-88 col-span-3 row-span-3 rounded-card" />
+        <Skeleton className="col-span-3 row-span-3 h-88 rounded-card" />
       )}
     </>
   )

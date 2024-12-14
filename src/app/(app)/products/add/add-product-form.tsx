@@ -1,24 +1,67 @@
 'use client'
 
 import * as Select from '@radix-ui/react-select'
+import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { ChangeEvent, useState } from 'react'
+import { ChangeEvent, useActionState, useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 import { Button } from '@/ui/button'
+import { AlertCircleIcon } from '@/ui/icons/alert-circle'
 import { ArrowDown01Icon } from '@/ui/icons/arrow-down-01'
 import { Cancel01Icon } from '@/ui/icons/cancel-01'
 import { ImageUploadIcon } from '@/ui/icons/image-upload'
 import { Tick02Icon } from '@/ui/icons/tick-02'
 import * as Input from '@/ui/input'
+import { DEFAULT_ACTION_STATE } from '@/utils/action-state'
 import { maskCurrency } from '@/utils/mask-currency'
 
+import { createProductAction } from './actions/create-product'
+import { fetchCategories } from './requests/fetch-categories'
+
 export const AddProductForm = () => {
+  const { data: categories, error } = useQuery({
+    queryKey: ['fetch-categories'],
+    queryFn: fetchCategories,
+  })
+
+  if (error) toast.error(error.message)
+
   const router = useRouter()
 
-  const [selectValue, setSelectValue] = useState<string>('')
+  const [state, formState, isPending] = useActionState(
+    createProductAction,
+    DEFAULT_ACTION_STATE,
+  )
+
+  useEffect(() => {
+    if (state.success) {
+      setPrice('')
+      setSelectValue('')
+      setProduct('')
+
+      toast.success('Cadastro realizado com sucesso!', {
+        classNames: {
+          actionButton: '!bg-green-700',
+        },
+      })
+    } else if (state.message) {
+      toast.error(state.message)
+    }
+  }, [state])
+
+  const [selectValue, setSelectValue] = useState<string>(
+    !state.success && state.payload && state.payload.categoryId
+      ? state.payload.categoryId.toString()
+      : '',
+  )
   const [product, setProduct] = useState<string | null>(null)
-  const [price, setPrice] = useState('')
+  const [price, setPrice] = useState(
+    !state.success && state.payload && state.payload.priceInCents
+      ? state.payload.priceInCents.toString()
+      : '',
+  )
 
   const handleProductImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
@@ -57,7 +100,7 @@ export const AddProductForm = () => {
   }
 
   return (
-    <form className="flex items-start gap-6">
+    <form action={formState} className="flex items-start gap-6">
       <div className="h-product-image w-product-image">
         <label
           htmlFor="product"
@@ -85,10 +128,21 @@ export const AddProductForm = () => {
         <input
           type="file"
           id="product"
+          name="file"
           accept="image/png, image/jpeg, image/jpg"
           className="sr-only"
           onChange={handleProductImageChange}
         />
+        <div>
+          {state.field_errors &&
+            state.field_errors.file &&
+            state.field_errors.file.map((error, index) => (
+              <Input.Error key={index}>
+                <AlertCircleIcon className="size-4 text-danger" />
+                {error}
+              </Input.Error>
+            ))}
+        </div>
       </div>
       <div className="flex-1 rounded-card bg-white p-6">
         <fieldset>
@@ -108,8 +162,21 @@ export const AddProductForm = () => {
                     name="title"
                     placeholder="Nome do produto"
                     autoFocus={true}
+                    defaultValue={
+                      !state.success && state.payload && state.payload.title
+                        ? state.payload.title.toString()
+                        : ''
+                    }
                   />
                 </Input.Content>
+                {state.field_errors &&
+                  state.field_errors.title &&
+                  state.field_errors.title.map((error, index) => (
+                    <Input.Error key={index}>
+                      <AlertCircleIcon className="size-4 text-danger" />
+                      {error}
+                    </Input.Error>
+                  ))}
               </Input.Root>
 
               <Input.Root>
@@ -120,13 +187,21 @@ export const AddProductForm = () => {
                   </Input.Prefix>
                   <Input.ControlInput
                     type="text"
-                    name="price"
+                    name="priceInCents"
                     value={price}
                     placeholder="0,00"
                     onChange={handlePriceChange}
                     className="w-50"
                   />
                 </Input.Content>
+                {state.field_errors &&
+                  state.field_errors.priceInCents &&
+                  state.field_errors.priceInCents.map((error, index) => (
+                    <Input.Error key={index}>
+                      <AlertCircleIcon className="size-4 text-danger" />
+                      {error}
+                    </Input.Error>
+                  ))}
               </Input.Root>
             </div>
 
@@ -137,83 +212,96 @@ export const AddProductForm = () => {
                   name="description"
                   placeholder="Escreva detalhes sobre o produto, tamanho, características..."
                   rows={4}
+                  defaultValue={
+                    !state.success && state.payload && state.payload.description
+                      ? state.payload.description.toString()
+                      : ''
+                  }
                 />
               </Input.Content>
+              {state.field_errors &&
+                state.field_errors.description &&
+                state.field_errors.description.map((error, index) => (
+                  <Input.Error key={index}>
+                    <AlertCircleIcon className="size-4 text-danger" />
+                    {error}
+                  </Input.Error>
+                ))}
             </Input.Root>
 
-            <Select.Root
-              value={selectValue}
-              onValueChange={handleSelectValueChange}
-            >
-              <div>
-                <span
-                  className="text-label-md uppercase text-gray-300 data-[filled=true]:text-orange-base"
-                  data-filled={!!selectValue}
-                >
-                  Categoria
-                </span>
-                <div className="relative">
-                  <Select.Trigger className="group flex h-12 w-full items-center border-b border-b-gray-100 text-gray-400 outline-none focus:border-b-gray-400 data-[state=open]:border-b-gray-400 data-[placeholder]:text-gray-200">
-                    <Select.Value placeholder="Selecione" />
+            <div>
+              <Select.Root
+                onValueChange={handleSelectValueChange}
+                value={selectValue}
+              >
+                <div>
+                  <span
+                    className="text-label-md uppercase text-gray-300 data-[filled=true]:text-orange-base"
+                    data-filled={!!selectValue}
+                  >
+                    Categoria
+                  </span>
+                  <div className="relative">
+                    <Select.Trigger className="group flex h-12 w-full items-center border-b border-b-gray-100 text-gray-400 outline-none focus:border-b-gray-400 data-[state=open]:border-b-gray-400 data-[placeholder]:text-gray-200">
+                      <Select.Value placeholder="Selecione" />
 
-                    <Select.Icon className="ml-auto">
-                      <ArrowDown01Icon className="size-6 text-gray-300 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                    </Select.Icon>
-                  </Select.Trigger>
+                      <Select.Icon className="ml-auto">
+                        <ArrowDown01Icon className="size-6 text-gray-300 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                      </Select.Icon>
+                    </Select.Trigger>
 
-                  {selectValue && (
-                    <Button
-                      className="absolute bottom-0 right-8 top-4 size-4 rounded-full p-1"
-                      variant="ghost"
-                      size="inset"
-                      onClick={handleClearSelectValue}
-                    >
-                      <Cancel01Icon className="size-4 text-gray-300" />
-                    </Button>
-                  )}
+                    {selectValue && (
+                      <Button
+                        className="absolute bottom-0 right-8 top-4 size-4 rounded-full p-1"
+                        variant="ghost"
+                        size="inset"
+                        onClick={handleClearSelectValue}
+                      >
+                        <Cancel01Icon className="size-4 text-gray-300" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
-              </div>
-              <Select.Portal>
-                <Select.Content
-                  className="max-h-[--radix-select-content-available-height] w-[--radix-select-trigger-width] animate-slide rounded-lg bg-white text-body-sm text-gray-300 drop-shadow"
-                  position="popper"
-                  side="bottom"
-                  sideOffset={4}
-                >
-                  <Select.Viewport>
-                    <Select.Item
-                      value="ANNOUNCED"
-                      className="flex justify-between px-4 py-3 hover:cursor-pointer hover:text-orange-dark hover:outline-none data-[state=checked]:text-orange-base"
-                    >
-                      <Select.ItemText>Anunciado</Select.ItemText>
-                      <Select.ItemIndicator>
-                        <Tick02Icon className="size-6 text-orange-base" />
-                      </Select.ItemIndicator>
-                    </Select.Item>
-
-                    <Select.Item
-                      value="SELLED"
-                      className="flex justify-between px-4 py-3 hover:cursor-pointer hover:text-orange-dark hover:outline-none data-[state=checked]:text-orange-base"
-                    >
-                      <Select.ItemText>Vendido</Select.ItemText>
-                      <Select.ItemIndicator>
-                        <Tick02Icon className="size-6 text-orange-base" />
-                      </Select.ItemIndicator>
-                    </Select.Item>
-
-                    <Select.Item
-                      value="DEACTIVATED"
-                      className="flex justify-between px-4 py-3 hover:cursor-pointer hover:text-orange-dark hover:outline-none data-[state=checked]:text-orange-base"
-                    >
-                      <Select.ItemText>Desativado</Select.ItemText>
-                      <Select.ItemIndicator>
-                        <Tick02Icon className="size-6 text-orange-base" />
-                      </Select.ItemIndicator>
-                    </Select.Item>
-                  </Select.Viewport>
-                </Select.Content>
-              </Select.Portal>
-            </Select.Root>
+                <Select.Portal>
+                  <Select.Content
+                    className="max-h-[--radix-select-content-available-height] w-[--radix-select-trigger-width] animate-slide rounded-lg bg-white text-body-sm text-gray-300 drop-shadow"
+                    position="popper"
+                    side="bottom"
+                    sideOffset={4}
+                  >
+                    <Select.Viewport>
+                      {categories ? (
+                        categories.map((category) => (
+                          <Select.Item
+                            key={category.id}
+                            value={category.id}
+                            className="flex justify-between px-4 py-3 hover:cursor-pointer hover:text-orange-dark hover:outline-none data-[state=checked]:text-orange-base"
+                          >
+                            <Select.ItemText>{category.title}</Select.ItemText>
+                            <Select.ItemIndicator>
+                              <Tick02Icon className="size-6 text-orange-base" />
+                            </Select.ItemIndicator>
+                          </Select.Item>
+                        ))
+                      ) : (
+                        <span className="block px-4 py-3 text-center text-body-sm text-gray-300">
+                          Carregando...
+                        </span>
+                      )}
+                    </Select.Viewport>
+                  </Select.Content>
+                </Select.Portal>
+              </Select.Root>
+              <input type="hidden" name="categoryId" value={selectValue} />
+              {state.field_errors &&
+                state.field_errors.categoryId &&
+                state.field_errors.categoryId.map((error, index) => (
+                  <Input.Error key={index}>
+                    <AlertCircleIcon className="size-4 text-danger" />
+                    {error}
+                  </Input.Error>
+                ))}
+            </div>
           </div>
 
           <div className="mt-10 flex gap-3">
@@ -226,8 +314,13 @@ export const AddProductForm = () => {
             >
               Cancelar
             </Button>
-            <Button size="md" font="action-md">
-              Salvar e atualizar
+            <Button
+              disabled={isPending}
+              size="md"
+              font="action-md"
+              className="disabled:cursor-wait"
+            >
+              {isPending ? <>Carregando...</> : <>Salvar</>}
             </Button>
           </div>
         </fieldset>

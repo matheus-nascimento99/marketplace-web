@@ -23,8 +23,11 @@ const signUpSchema = z
         return sizeInMB(file.size) <= MAX_IMAGE_SIZE
       }, `O tamanho máximo aceitável da imagem é ${MAX_IMAGE_SIZE}MB`)
       .refine((file) => {
-        return ACCEPTED_IMAGE_TYPES.includes(file.type)
+        return file.name !== 'undefined'
+          ? ACCEPTED_IMAGE_TYPES.includes(file.type)
+          : true
       }, 'Tipo de imagem não suportada'),
+
     name: z
       .string()
       .trim()
