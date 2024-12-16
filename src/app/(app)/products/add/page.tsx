@@ -1,4 +1,10 @@
+import { Metadata } from 'next'
+
 import { AddProductForm } from './add-product-form'
+
+export const metadata: Metadata = {
+  title: 'Novo produto',
+}
 
 export default async function NewProduct() {
   return (

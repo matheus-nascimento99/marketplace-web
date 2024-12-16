@@ -2,17 +2,32 @@
 
 import { z } from 'zod'
 
-import { ActionState } from '@/utils/action-state'
+import { uploadAttachments } from '@/attachments/upload-attachments'
 import { capitalize } from '@/utils/capitalize'
 import { handleHttpError } from '@/utils/handle-http-error'
 import { harden } from '@/utils/harden'
+import {
+  ACCEPTED_IMAGE_TYPES,
+  MAX_IMAGE_SIZE,
+  sizeInMB,
+} from '@/utils/size-in-mb'
 
-import { createProduct } from '../requests/create-product'
+import { editProduct } from '../requests/edit-product'
 
-const createProductSchema = z.object({
-  attachmentId: z
-    .string({ required_error: 'Por favor, forneça a imagem do produto' })
-    .uuid('Por favor, forneça a imagem do produto'),
+const editProductSchema = z.object({
+  file: z
+    .custom<File>()
+    .refine((file) => {
+      return file.name !== 'undefined'
+    }, 'A imagem do produto é obrigatória')
+    .refine((file) => {
+      return sizeInMB(file.size) <= MAX_IMAGE_SIZE
+    }, `O tamanho máximo aceitável da imagem é ${MAX_IMAGE_SIZE}MB`)
+    .refine((file) => {
+      return file.name !== 'undefined'
+        ? ACCEPTED_IMAGE_TYPES.includes(file.type)
+        : true
+    }, 'Tipo de imagem não suportada'),
   title: z
     .string()
     .trim()
@@ -45,10 +60,10 @@ const createProductSchema = z.object({
     .uuid('A categoria deve ser um uuid'),
 })
 
-export const createProductAction = async (_: ActionState, form: FormData) => {
+export const editProductAction = async (productId: string, form: FormData) => {
   const fields = Object.fromEntries(form)
 
-  const data = createProductSchema.safeParse(fields)
+  const data = editProductSchema.safeParse(fields)
 
   if (!data.success) {
     return {
@@ -59,12 +74,19 @@ export const createProductAction = async (_: ActionState, form: FormData) => {
     }
   }
 
-  const { attachmentId, categoryId, description, priceInCents, title } =
-    data.data
+  const { file, categoryId, description, priceInCents, title } = data.data
 
   try {
-    await createProduct({
-      attachmentsIds: [attachmentId],
+    const attachmentsIds: string[] = []
+
+    if (file) {
+      const { attachments } = await uploadAttachments({ file })
+      attachmentsIds.push(attachments[0].id)
+    }
+
+    await editProduct({
+      productId,
+      attachmentsIds,
       categoryId,
       description,
       priceInCents,

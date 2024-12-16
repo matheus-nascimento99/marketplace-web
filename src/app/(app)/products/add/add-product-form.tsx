@@ -7,6 +7,8 @@ import { useRouter } from 'next/navigation'
 import { ChangeEvent, useActionState, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
+import { uploadAttachmentsAction } from '@/attachments/upload-attachments-action'
+import { fetchCategories } from '@/categories/fetch-categories'
 import { Button } from '@/ui/button'
 import { AlertCircleIcon } from '@/ui/icons/alert-circle'
 import { ArrowDown01Icon } from '@/ui/icons/arrow-down-01'
@@ -18,7 +20,6 @@ import { DEFAULT_ACTION_STATE } from '@/utils/action-state'
 import { maskCurrency } from '@/utils/mask-currency'
 
 import { createProductAction } from './actions/create-product'
-import { fetchCategories } from './requests/fetch-categories'
 
 export const AddProductForm = () => {
   const { data: categories, error } = useQuery({
@@ -62,20 +63,32 @@ export const AddProductForm = () => {
       ? state.payload.priceInCents.toString()
       : '',
   )
+  const [attachmentId, setAttachmentId] = useState(
+    !state.success && state.payload && state.payload.attachmentId
+      ? state.payload.attachmentId.toString()
+      : '',
+  )
 
-  const handleProductImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleProductImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
 
     if (!files) return
 
     if (files.length === 0) {
       setProduct(null)
+      setAttachmentId('')
 
       e.target.value = ''
     } else {
       const objectURL = URL.createObjectURL(files[0])
 
       setProduct(objectURL)
+
+      const result = await uploadAttachmentsAction({ file: files[0] })
+
+      if (result.attachmentId) {
+        setAttachmentId(result.attachmentId)
+      }
     }
   }
 
@@ -133,10 +146,11 @@ export const AddProductForm = () => {
           className="sr-only"
           onChange={handleProductImageChange}
         />
+        <input type="hidden" name="attachmentId" value={attachmentId} />
         <div>
           {state.field_errors &&
-            state.field_errors.file &&
-            state.field_errors.file.map((error, index) => (
+            state.field_errors.attachmentId &&
+            state.field_errors.attachmentId.map((error, index) => (
               <Input.Error key={index}>
                 <AlertCircleIcon className="size-4 text-danger" />
                 {error}
@@ -311,6 +325,8 @@ export const AddProductForm = () => {
               variant="outline"
               onClick={() => router.back()}
               type="button"
+              disabled={isPending}
+              className="disabled:cursor-not-allowed"
             >
               Cancelar
             </Button>

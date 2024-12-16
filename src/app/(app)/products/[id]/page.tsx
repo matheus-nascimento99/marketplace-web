@@ -43,7 +43,7 @@ export default async function Page({
         </div>
       </div>
 
-      <EditProductForm />
+      <EditProductForm productId={id} />
     </section>
   )
 }
