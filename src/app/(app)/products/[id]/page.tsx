@@ -1,11 +1,13 @@
 import { Metadata } from 'next'
+import { Suspense } from 'react'
 
 import { Button } from '@/ui/button'
 import { GoBackButton } from '@/ui/go-back-button'
 import { Tick02Icon } from '@/ui/icons/tick-02'
 import { UnavailableIcon } from '@/ui/icons/unavailable'
 
-import { EditProductForm } from './edit-product-form'
+import { EditProduct } from './edit-product'
+import Loading from './loading'
 
 export const metadata: Metadata = {
   title: 'Título do produto',
@@ -43,7 +45,9 @@ export default async function Page({
         </div>
       </div>
 
-      <EditProductForm productId={id} />
+      <Suspense fallback={<Loading />}>
+        <EditProduct productId={id} />
+      </Suspense>
     </section>
   )
 }

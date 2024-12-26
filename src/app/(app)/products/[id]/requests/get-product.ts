@@ -14,5 +14,5 @@ export const getProduct = async ({ productId }: GetProductRequest) => {
     .get<GetProductResponse>(`products/${productId}`, {})
     .json()
 
-  return result
+  return result.product
 }

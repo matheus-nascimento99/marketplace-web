@@ -1,38 +1,54 @@
 'use client'
 
-import * as Select from '@radix-ui/react-select'
 import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { ChangeEvent, useState } from 'react'
+import { ChangeEvent, useActionState, useRef, useState } from 'react'
+import { toast } from 'sonner'
 
+import { Product } from '@/app/dto/product'
+import { fetchCategories } from '@/categories/fetch-categories'
 import { Button } from '@/ui/button'
-import { ArrowDown01Icon } from '@/ui/icons/arrow-down-01'
-import { Cancel01Icon } from '@/ui/icons/cancel-01'
 import { ImageUploadIcon } from '@/ui/icons/image-upload'
-import { Tick02Icon } from '@/ui/icons/tick-02'
 import * as Input from '@/ui/input'
-import { Skeleton } from '@/ui/skeleton'
+import * as Select from '@/ui/select'
+import { ActionState, DEFAULT_ACTION_STATE } from '@/utils/action-state'
 import { maskCurrency } from '@/utils/mask-currency'
 
 import { ProductStatusTag } from '../product-status-tag'
-import { getProduct } from './requests/get-product'
+import { editProductAction } from './actions/edit-product'
 
 type EditProductFormProps = {
-  productId: string
+  product: Product
 }
 
-export const EditProductForm = ({ productId }: EditProductFormProps) => {
-  const router = useRouter()
-
-  const { data: product } = useQuery({
-    queryKey: ['get-product', productId],
-    queryFn: () => getProduct({ productId }),
+export const EditProductForm = ({ product }: EditProductFormProps) => {
+  const { data: categories, error } = useQuery({
+    queryKey: ['fetch-categories'],
+    queryFn: fetchCategories,
   })
 
-  const [selectValue, setSelectValue] = useState<string>('')
+  if (error) toast.error(error.message)
+
+  const selectHandlersRef = useRef<Select.SelectHandlers>(null)
+
+  const router = useRouter()
+
+  const [state, formState, isPending] = useActionState(
+    (currentState: ActionState, form: FormData) =>
+      editProductAction(product.id, currentState, form),
+    DEFAULT_ACTION_STATE,
+  )
+
   const [productTitle, setProductTitle] = useState<string | null>(null)
-  const [price, setPrice] = useState('')
+  const [price, setPrice] = useState(
+    !state.success && state.payload && state.payload.priceInCents
+      ? state.payload.priceInCents.toString()
+      : (product.priceInCents / 100).toLocaleString('pt-BR', {
+          style: 'currency',
+          currency: 'BRL',
+        }),
+  )
 
   const handleProductImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
@@ -62,200 +78,141 @@ export const EditProductForm = ({ productId }: EditProductFormProps) => {
     }
   }
 
-  const handleClearSelectValue = () => {
-    setSelectValue('')
-  }
-
-  const handleSelectValueChange = (value: string) => {
-    setSelectValue(value)
-  }
-
   return (
-    <form className="flex items-start gap-6">
+    <form action={formState} className="flex items-start gap-6">
       <div className="h-product-image w-product-image">
-        {product ? (
-          <>
-            <label
-              htmlFor="product"
-              className="relative flex h-full cursor-pointer items-center justify-center overflow-hidden rounded-2xl bg-shape"
-            >
-              {productTitle ? (
-                <>
-                  <div className="absolute flex h-full w-full items-center justify-center bg-black/60 opacity-0 transition-opacity hover:opacity-100">
-                    <ImageUploadIcon className="size-8 text-white" />
-                  </div>
+        <>
+          <label
+            htmlFor="product"
+            className="relative flex h-full cursor-pointer items-center justify-center overflow-hidden rounded-2xl bg-shape"
+          >
+            {productTitle ? (
+              <>
+                <div className="absolute flex h-full w-full items-center justify-center bg-black/60 opacity-0 transition-opacity hover:opacity-100">
+                  <ImageUploadIcon className="size-8 text-white" />
+                </div>
 
-                  <Image
-                    src={productTitle}
-                    className="h-full w-full object-contain"
-                    width={120}
-                    height={120}
-                    quality={100}
-                    alt="Product picture"
-                  />
-                </>
-              ) : (
-                <ImageUploadIcon className="size-8 text-orange-base" />
-              )}
-            </label>
-            <input
-              type="file"
-              id="product"
-              accept="image/png, image/jpeg, image/jpg"
-              className="sr-only"
-              onChange={handleProductImageChange}
-            />
-          </>
-        ) : (
-          <Skeleton className="h-full rounded-2xl" />
-        )}
+                <Image
+                  src={productTitle}
+                  className="h-full w-full object-contain"
+                  width={120}
+                  height={120}
+                  quality={100}
+                  alt="Product picture"
+                />
+              </>
+            ) : (
+              <ImageUploadIcon className="size-8 text-orange-base" />
+            )}
+          </label>
+          <input
+            type="file"
+            id="product"
+            accept="image/png, image/jpeg, image/jpg"
+            className="sr-only"
+            onChange={handleProductImageChange}
+          />
+        </>
       </div>
-      {product ? (
-        <div className="flex-1 rounded-card bg-white p-6">
-          <fieldset>
-            <div className="flex items-center justify-between">
-              <legend className="text-title-sm text-gray-300">
-                Dados do produto
-              </legend>
-              <ProductStatusTag status="available" />
-            </div>
+      <div className="flex-1 rounded-card bg-white p-6">
+        <fieldset>
+          <div className="flex items-center justify-between">
+            <legend className="text-title-sm text-gray-300">
+              Dados do produto
+            </legend>
+            <ProductStatusTag status="available" />
+          </div>
 
-            <div className="mt-6 space-y-5">
-              <div className="flex gap-5">
-                <Input.Root>
-                  <Input.Label>Título</Input.Label>
-                  <Input.Content>
-                    <Input.ControlInput
-                      type="text"
-                      name="title"
-                      placeholder="Nome do produto"
-                    />
-                  </Input.Content>
-                </Input.Root>
-
-                <Input.Root>
-                  <Input.Label>Valor</Input.Label>
-                  <Input.Content>
-                    <Input.Prefix className="text-orange-base group-has-[:placeholder-shown]:text-gray-200">
-                      R$
-                    </Input.Prefix>
-                    <Input.ControlInput
-                      type="text"
-                      name="price"
-                      value={price}
-                      placeholder="0,00"
-                      onChange={handlePriceChange}
-                      className="w-50"
-                    />
-                  </Input.Content>
-                </Input.Root>
-              </div>
-
+          <div className="mt-6 space-y-5">
+            <div className="flex gap-5">
               <Input.Root>
-                <Input.Label>Descrição</Input.Label>
-                <Input.Content className="mt-3 h-auto">
-                  <Input.ControlTextArea
-                    name="description"
-                    placeholder="Escreva detalhes sobre o produto, tamanho, características..."
-                    rows={4}
+                <Input.Label>Título</Input.Label>
+                <Input.Content>
+                  <Input.ControlInput
+                    type="text"
+                    name="title"
+                    placeholder="Nome do produto"
+                    defaultValue={
+                      !state.success && state.payload && state.payload.title
+                        ? state.payload.title.toString()
+                        : product.title
+                    }
                   />
                 </Input.Content>
               </Input.Root>
 
-              <Select.Root
-                value={selectValue}
-                onValueChange={handleSelectValueChange}
-              >
-                <div>
-                  <span
-                    className="text-label-md uppercase text-gray-300 data-[filled=true]:text-orange-base"
-                    data-filled={!!selectValue}
-                  >
-                    Categoria
-                  </span>
-                  <div className="relative">
-                    <Select.Trigger className="group flex h-12 w-full items-center border-b border-b-gray-100 text-gray-400 outline-none focus:border-b-gray-400 data-[state=open]:border-b-gray-400 data-[placeholder]:text-gray-200">
-                      <Select.Value placeholder="Selecione" />
-
-                      <Select.Icon className="ml-auto">
-                        <ArrowDown01Icon className="size-6 text-gray-300 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                      </Select.Icon>
-                    </Select.Trigger>
-
-                    {selectValue && (
-                      <Button
-                        className="absolute bottom-0 right-8 top-4 size-4 rounded-full p-1"
-                        variant="ghost"
-                        size="inset"
-                        onClick={handleClearSelectValue}
-                      >
-                        <Cancel01Icon className="size-4 text-gray-300" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-                <Select.Portal>
-                  <Select.Content
-                    className="max-h-[--radix-select-content-available-height] w-[--radix-select-trigger-width] animate-slide rounded-lg bg-white text-body-sm text-gray-300 drop-shadow"
-                    position="popper"
-                    side="bottom"
-                    sideOffset={4}
-                  >
-                    <Select.Viewport>
-                      <Select.Item
-                        value="ANNOUNCED"
-                        className="flex justify-between px-4 py-3 hover:cursor-pointer hover:text-orange-dark hover:outline-none data-[state=checked]:text-orange-base"
-                      >
-                        <Select.ItemText>Anunciado</Select.ItemText>
-                        <Select.ItemIndicator>
-                          <Tick02Icon className="size-6 text-orange-base" />
-                        </Select.ItemIndicator>
-                      </Select.Item>
-
-                      <Select.Item
-                        value="SELLED"
-                        className="flex justify-between px-4 py-3 hover:cursor-pointer hover:text-orange-dark hover:outline-none data-[state=checked]:text-orange-base"
-                      >
-                        <Select.ItemText>Vendido</Select.ItemText>
-                        <Select.ItemIndicator>
-                          <Tick02Icon className="size-6 text-orange-base" />
-                        </Select.ItemIndicator>
-                      </Select.Item>
-
-                      <Select.Item
-                        value="DEACTIVATED"
-                        className="flex justify-between px-4 py-3 hover:cursor-pointer hover:text-orange-dark hover:outline-none data-[state=checked]:text-orange-base"
-                      >
-                        <Select.ItemText>Desativado</Select.ItemText>
-                        <Select.ItemIndicator>
-                          <Tick02Icon className="size-6 text-orange-base" />
-                        </Select.ItemIndicator>
-                      </Select.Item>
-                    </Select.Viewport>
-                  </Select.Content>
-                </Select.Portal>
-              </Select.Root>
+              <Input.Root>
+                <Input.Label>Valor</Input.Label>
+                <Input.Content>
+                  <Input.Prefix className="text-orange-base group-has-[:placeholder-shown]:text-gray-200">
+                    R$
+                  </Input.Prefix>
+                  <Input.ControlInput
+                    type="text"
+                    name="price"
+                    value={price}
+                    placeholder="0,00"
+                    onChange={handlePriceChange}
+                    className="w-50"
+                  />
+                </Input.Content>
+              </Input.Root>
             </div>
 
-            <div className="mt-10 flex gap-3">
-              <Button
-                size="md"
-                font="action-md"
-                variant="outline"
-                onClick={() => router.back()}
-                type="button"
-              >
-                Cancelar
-              </Button>
-              <Button size="md" font="action-md">
-                Salvar e atualizar
-              </Button>
-            </div>
-          </fieldset>
-        </div>
-      ) : (
-        <Skeleton className="h-[466px] flex-1 rounded-card" />
-      )}
+            <Input.Root>
+              <Input.Label>Descrição</Input.Label>
+              <Input.Content className="mt-3 h-auto">
+                <Input.ControlTextArea
+                  name="description"
+                  placeholder="Escreva detalhes sobre o produto, tamanho, características..."
+                  rows={4}
+                  defaultValue={
+                    !state.success && state.payload && state.payload.description
+                      ? state.payload.description.toString()
+                      : product.description
+                  }
+                />
+              </Input.Content>
+            </Input.Root>
+
+            <Select.Root
+              label="Categoria"
+              value={product.category.id}
+              ref={selectHandlersRef}
+              name="categoryId"
+            >
+              {categories ? (
+                categories.map((category) => (
+                  <Select.Item
+                    key={category.id}
+                    value={category.id}
+                    title={category.title}
+                  />
+                ))
+              ) : (
+                <span className="block px-4 py-3 text-center text-body-sm text-gray-300">
+                  Carregando...
+                </span>
+              )}
+            </Select.Root>
+          </div>
+
+          <div className="mt-10 flex gap-3">
+            <Button
+              size="md"
+              font="action-md"
+              variant="outline"
+              onClick={() => router.back()}
+              type="button"
+            >
+              Cancelar
+            </Button>
+            <Button size="md" font="action-md">
+              Salvar e atualizar
+            </Button>
+          </div>
+        </fieldset>
+      </div>
     </form>
   )
 }

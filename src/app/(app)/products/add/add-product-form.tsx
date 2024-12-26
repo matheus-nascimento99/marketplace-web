@@ -1,21 +1,18 @@
 'use client'
 
-import * as Select from '@radix-ui/react-select'
 import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { ChangeEvent, useActionState, useEffect, useState } from 'react'
+import { ChangeEvent, useActionState, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import { uploadAttachmentsAction } from '@/attachments/upload-attachments-action'
 import { fetchCategories } from '@/categories/fetch-categories'
 import { Button } from '@/ui/button'
 import { AlertCircleIcon } from '@/ui/icons/alert-circle'
-import { ArrowDown01Icon } from '@/ui/icons/arrow-down-01'
-import { Cancel01Icon } from '@/ui/icons/cancel-01'
 import { ImageUploadIcon } from '@/ui/icons/image-upload'
-import { Tick02Icon } from '@/ui/icons/tick-02'
 import * as Input from '@/ui/input'
+import * as Select from '@/ui/select'
 import { DEFAULT_ACTION_STATE } from '@/utils/action-state'
 import { maskCurrency } from '@/utils/mask-currency'
 
@@ -29,6 +26,8 @@ export const AddProductForm = () => {
 
   if (error) toast.error(error.message)
 
+  const selectHandlersRef = useRef<Select.SelectHandlers>(null)
+
   const router = useRouter()
 
   const [state, formState, isPending] = useActionState(
@@ -39,8 +38,8 @@ export const AddProductForm = () => {
   useEffect(() => {
     if (state.success) {
       setPrice('')
-      setSelectValue('')
       setProduct('')
+      selectHandlersRef.current?.resetState()
 
       toast.success('Cadastro realizado com sucesso!', {
         classNames: {
@@ -52,11 +51,6 @@ export const AddProductForm = () => {
     }
   }, [state])
 
-  const [selectValue, setSelectValue] = useState<string>(
-    !state.success && state.payload && state.payload.categoryId
-      ? state.payload.categoryId.toString()
-      : '',
-  )
   const [product, setProduct] = useState<string | null>(null)
   const [price, setPrice] = useState(
     !state.success && state.payload && state.payload.priceInCents
@@ -102,14 +96,6 @@ export const AddProductForm = () => {
       const formattedValue = maskCurrency(numbers)
       setPrice(formattedValue)
     }
-  }
-
-  const handleClearSelectValue = () => {
-    setSelectValue('')
-  }
-
-  const handleSelectValueChange = (value: string) => {
-    setSelectValue(value)
   }
 
   return (
@@ -245,68 +231,29 @@ export const AddProductForm = () => {
 
             <div>
               <Select.Root
-                onValueChange={handleSelectValueChange}
-                value={selectValue}
+                label="Categoria"
+                ref={selectHandlersRef}
+                name="categoryId"
+                value={
+                  !state.success && state.payload && state.payload.categoryId
+                    ? state.payload.categoryId.toString()
+                    : ''
+                }
               >
-                <div>
-                  <span
-                    className="text-label-md uppercase text-gray-300 data-[filled=true]:text-orange-base"
-                    data-filled={!!selectValue}
-                  >
-                    Categoria
+                {categories ? (
+                  categories.map((category) => (
+                    <Select.Item
+                      key={category.id}
+                      value={category.id}
+                      title={category.title}
+                    />
+                  ))
+                ) : (
+                  <span className="block px-4 py-3 text-center text-body-sm text-gray-300">
+                    Carregando...
                   </span>
-                  <div className="relative">
-                    <Select.Trigger className="group flex h-12 w-full items-center border-b border-b-gray-100 text-gray-400 outline-none focus:border-b-gray-400 data-[state=open]:border-b-gray-400 data-[placeholder]:text-gray-200">
-                      <Select.Value placeholder="Selecione" />
-
-                      <Select.Icon className="ml-auto">
-                        <ArrowDown01Icon className="size-6 text-gray-300 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                      </Select.Icon>
-                    </Select.Trigger>
-
-                    {selectValue && (
-                      <Button
-                        className="absolute bottom-0 right-8 top-4 size-4 rounded-full p-1"
-                        variant="ghost"
-                        size="inset"
-                        onClick={handleClearSelectValue}
-                      >
-                        <Cancel01Icon className="size-4 text-gray-300" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-                <Select.Portal>
-                  <Select.Content
-                    className="max-h-[--radix-select-content-available-height] w-[--radix-select-trigger-width] animate-slide rounded-lg bg-white text-body-sm text-gray-300 drop-shadow"
-                    position="popper"
-                    side="bottom"
-                    sideOffset={4}
-                  >
-                    <Select.Viewport>
-                      {categories ? (
-                        categories.map((category) => (
-                          <Select.Item
-                            key={category.id}
-                            value={category.id}
-                            className="flex justify-between px-4 py-3 hover:cursor-pointer hover:text-orange-dark hover:outline-none data-[state=checked]:text-orange-base"
-                          >
-                            <Select.ItemText>{category.title}</Select.ItemText>
-                            <Select.ItemIndicator>
-                              <Tick02Icon className="size-6 text-orange-base" />
-                            </Select.ItemIndicator>
-                          </Select.Item>
-                        ))
-                      ) : (
-                        <span className="block px-4 py-3 text-center text-body-sm text-gray-300">
-                          Carregando...
-                        </span>
-                      )}
-                    </Select.Viewport>
-                  </Select.Content>
-                </Select.Portal>
+                )}
               </Select.Root>
-              <input type="hidden" name="categoryId" value={selectValue} />
               {state.field_errors &&
                 state.field_errors.categoryId &&
                 state.field_errors.categoryId.map((error, index) => (

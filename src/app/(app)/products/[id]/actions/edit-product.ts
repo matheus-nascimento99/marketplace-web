@@ -3,6 +3,7 @@
 import { z } from 'zod'
 
 import { uploadAttachments } from '@/attachments/upload-attachments'
+import { ActionState } from '@/utils/action-state'
 import { capitalize } from '@/utils/capitalize'
 import { handleHttpError } from '@/utils/handle-http-error'
 import { harden } from '@/utils/harden'
@@ -60,7 +61,11 @@ const editProductSchema = z.object({
     .uuid('A categoria deve ser um uuid'),
 })
 
-export const editProductAction = async (productId: string, form: FormData) => {
+export const editProductAction = async (
+  productId: string,
+  _: ActionState,
+  form: FormData,
+) => {
   const fields = Object.fromEntries(form)
 
   const data = editProductSchema.safeParse(fields)

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { ChangeEvent, useActionState, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
+import { uploadAttachmentsAction } from '@/attachments/upload-attachments-action'
 import { Button } from '@/ui/button'
 import { AccessIcon } from '@/ui/icons/access'
 import { AlertCircleIcon } from '@/ui/icons/alert-circle'
@@ -31,6 +32,11 @@ export const SignUpForm = () => {
   )
 
   const [avatar, setAvatar] = useState<string | null>(null)
+  const [avatarId, setAvatarId] = useState(
+    !state.success && state.payload && state.payload.avatarId
+      ? state.payload.avatarId.toString()
+      : '',
+  )
   const [phone, setPhone] = useState(
     !state.success && state.payload && state.payload.phone
       ? state.payload.phone.toString()
@@ -47,6 +53,7 @@ export const SignUpForm = () => {
 
       setAvatar('')
       setPhone('')
+      setAvatarId('')
 
       toast.success('Cadastro realizado com sucesso!', {
         classNames: {
@@ -69,12 +76,21 @@ export const SignUpForm = () => {
 
     if (!files) return
 
-    if (files.length > 0) {
+    if (files.length === 0) {
+      setAvatar(null)
+      setAvatarId('')
+
+      e.target.value = ''
+    } else {
       const objectURL = URL.createObjectURL(files[0])
 
       setAvatar(objectURL)
-    } else {
-      setAvatar('')
+
+      const result = await uploadAttachmentsAction({ file: files[0] })
+
+      if (result.attachmentId) {
+        setAvatarId(result.attachmentId)
+      }
     }
   }
 
@@ -137,6 +153,17 @@ export const SignUpForm = () => {
                 state.field_errors && Object.hasOwn(state.field_errors, 'file')
               }
             />
+            <input type="hidden" name="avatarId" value={avatarId} />
+            <div>
+              {state.field_errors &&
+                state.field_errors.avatarId &&
+                state.field_errors.avatarId.map((error, index) => (
+                  <Input.Error key={index}>
+                    <AlertCircleIcon className="size-4 text-danger" />
+                    {error}
+                  </Input.Error>
+                ))}
+            </div>
           </div>
           <div>
             {state.field_errors &&
