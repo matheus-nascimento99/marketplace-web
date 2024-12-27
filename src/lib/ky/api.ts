@@ -11,10 +11,6 @@ export const api = ky.create({
   hooks: {
     beforeRequest: [
       async (request) => {
-        await new Promise((resolve) =>
-          setTimeout(resolve, Math.floor(Math.random() * 1000)),
-        )
-
         let cookieStore: CookiesFn | undefined
 
         if (typeof window === 'undefined') {

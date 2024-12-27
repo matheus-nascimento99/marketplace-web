@@ -3,9 +3,20 @@ import { Suspense } from 'react'
 
 import { EditProduct } from './edit-product'
 import Loading from './loading'
+import { getProduct } from './requests/get-product'
 
-export const metadata: Metadata = {
-  title: 'Título do produto',
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
+  const productId = (await params).id
+
+  const product = await getProduct({ productId })
+
+  return {
+    title: product.title,
+  }
 }
 
 export default async function Page({
