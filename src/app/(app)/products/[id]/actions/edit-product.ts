@@ -7,28 +7,13 @@ import { ActionState } from '@/utils/action-state'
 import { capitalize } from '@/utils/capitalize'
 import { handleHttpError } from '@/utils/handle-http-error'
 import { harden } from '@/utils/harden'
-import {
-  ACCEPTED_IMAGE_TYPES,
-  MAX_IMAGE_SIZE,
-  sizeInMB,
-} from '@/utils/size-in-mb'
 
 import { editProduct } from '../requests/edit-product'
 
 const editProductSchema = z.object({
-  file: z
-    .custom<File>()
-    .refine((file) => {
-      return file.name !== 'undefined'
-    }, 'A imagem do produto é obrigatória')
-    .refine((file) => {
-      return sizeInMB(file.size) <= MAX_IMAGE_SIZE
-    }, `O tamanho máximo aceitável da imagem é ${MAX_IMAGE_SIZE}MB`)
-    .refine((file) => {
-      return file.name !== 'undefined'
-        ? ACCEPTED_IMAGE_TYPES.includes(file.type)
-        : true
-    }, 'Tipo de imagem não suportada'),
+  attachmentId: z
+    .string({ required_error: 'Por favor, forneça a imagem do produto' })
+    .uuid('Por favor, forneça a imagem do produto'),
   title: z
     .string()
     .trim()
@@ -79,19 +64,13 @@ export const editProductAction = async (
     }
   }
 
-  const { file, categoryId, description, priceInCents, title } = data.data
+  const { attachmentId, categoryId, description, priceInCents, title } =
+    data.data
 
   try {
-    const attachmentsIds: string[] = []
-
-    if (file) {
-      const { attachments } = await uploadAttachments({ file })
-      attachmentsIds.push(attachments[0].id)
-    }
-
     await editProduct({
       productId,
-      attachmentsIds,
+      attachmentsIds: [attachmentId],
       categoryId,
       description,
       priceInCents,
@@ -100,7 +79,7 @@ export const editProductAction = async (
 
     return {
       success: true,
-      message: 'Cadastro realizado com sucesso!',
+      message: 'Produto atualizado com sucesso!',
       field_errors: null,
       payload: null,
     }

@@ -11,7 +11,9 @@ export type GetProductResponse = {
 
 export const getProduct = async ({ productId }: GetProductRequest) => {
   const result = await api
-    .get<GetProductResponse>(`products/${productId}`, {})
+    .get<GetProductResponse>(`products/${productId}`, {
+      next: { tags: ['get-product'] },
+    })
     .json()
 
   return result.product

@@ -55,6 +55,11 @@ export const ControlInput = ({
   return (
     <input
       id={id}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault()
+        }
+      }}
       className={twMerge(
         'w-full text-body-md text-gray-400 placeholder:text-gray-200 focus:caret-orange-base focus:outline-none',
         className,

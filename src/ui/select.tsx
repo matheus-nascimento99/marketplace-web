@@ -10,6 +10,7 @@ import { Tick02Icon } from './icons/tick-02'
 
 export type SelectHandlers = {
   getState: () => string
+  setState: (value: string) => void
   resetState: () => void
 }
 
@@ -38,6 +39,8 @@ export const Root = ({
   }
 
   const handleSelectValueChange = (value: string) => {
+    if (!value) return
+
     setSelectValue(value)
   }
 
@@ -46,6 +49,9 @@ export const Root = ({
     () => ({
       getState() {
         return selectValue
+      },
+      setState(value) {
+        setSelectValue(value)
       },
       resetState() {
         setSelectValue('')

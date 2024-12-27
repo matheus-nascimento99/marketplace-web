@@ -42,7 +42,7 @@ export const api = ky.create({
         const isAuth = await isAuthenticated()
         const status = response.status
 
-        if (isAuth && (status === 401 || status === 403)) {
+        if (isAuth && status === 401) {
           await signOutAction()
         }
       },

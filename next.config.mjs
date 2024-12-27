@@ -7,10 +7,9 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'github.com',
-        port: '',
-        pathname: '/matheus-nascimento99.png',
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '3333',
       },
     ],
   },

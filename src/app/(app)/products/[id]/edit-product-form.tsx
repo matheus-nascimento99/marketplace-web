@@ -3,12 +3,14 @@
 import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { ChangeEvent, useActionState, useRef, useState } from 'react'
+import { ChangeEvent, useActionState, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import { Product } from '@/app/dto/product'
+import { uploadAttachmentsAction } from '@/attachments/upload-attachments-action'
 import { fetchCategories } from '@/categories/fetch-categories'
 import { Button } from '@/ui/button'
+import { AlertCircleIcon } from '@/ui/icons/alert-circle'
 import { ImageUploadIcon } from '@/ui/icons/image-upload'
 import * as Input from '@/ui/input'
 import * as Select from '@/ui/select'
@@ -40,29 +42,54 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
     DEFAULT_ACTION_STATE,
   )
 
-  const [productTitle, setProductTitle] = useState<string | null>(null)
+  useEffect(() => {
+    if (state.success) {
+      toast.success('Produto atualizado com sucesso!', {
+        classNames: {
+          actionButton: '!bg-green-700',
+        },
+      })
+    } else if (state.message) {
+      toast.error(state.message)
+    }
+  }, [state])
+
+  const [productTitle, setProduct] = useState<string | null>(null)
   const [price, setPrice] = useState(
     !state.success && state.payload && state.payload.priceInCents
       ? state.payload.priceInCents.toString()
       : (product.priceInCents / 100).toLocaleString('pt-BR', {
-          style: 'currency',
-          currency: 'BRL',
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
         }),
   )
 
-  const handleProductImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const [attachmentId, setAttachmentId] = useState(
+    !state.success && state.payload && state.payload.attachmentId
+      ? state.payload.attachmentId.toString()
+      : product.attachments[0].id,
+  )
+
+  const handleProductImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
 
     if (!files) return
 
     if (files.length === 0) {
-      setProductTitle(null)
+      setProduct(null)
+      setAttachmentId('')
 
       e.target.value = ''
     } else {
       const objectURL = URL.createObjectURL(files[0])
 
-      setProductTitle(objectURL)
+      setProduct(objectURL)
+
+      const result = await uploadAttachmentsAction({ file: files[0] })
+
+      if (result.attachmentId) {
+        setAttachmentId(result.attachmentId)
+      }
     }
   }
 
@@ -81,38 +108,47 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
   return (
     <form action={formState} className="flex items-start gap-6">
       <div className="h-product-image w-product-image">
-        <>
-          <label
-            htmlFor="product"
-            className="relative flex h-full cursor-pointer items-center justify-center overflow-hidden rounded-2xl bg-shape"
-          >
-            {productTitle ? (
-              <>
-                <div className="absolute flex h-full w-full items-center justify-center bg-black/60 opacity-0 transition-opacity hover:opacity-100">
-                  <ImageUploadIcon className="size-8 text-white" />
-                </div>
+        <label
+          htmlFor="product"
+          className="relative flex h-full cursor-pointer items-center justify-center overflow-hidden rounded-2xl bg-shape"
+        >
+          {productTitle || product.attachments.length > 0 ? (
+            <>
+              <div className="absolute flex h-full w-full items-center justify-center bg-black/60 opacity-0 transition-opacity hover:opacity-100">
+                <ImageUploadIcon className="size-8 text-white" />
+              </div>
 
-                <Image
-                  src={productTitle}
-                  className="h-full w-full object-contain"
-                  width={120}
-                  height={120}
-                  quality={100}
-                  alt="Product picture"
-                />
-              </>
-            ) : (
-              <ImageUploadIcon className="size-8 text-orange-base" />
-            )}
-          </label>
-          <input
-            type="file"
-            id="product"
-            accept="image/png, image/jpeg, image/jpg"
-            className="sr-only"
-            onChange={handleProductImageChange}
-          />
-        </>
+              <Image
+                src={productTitle || product.attachments[0].url}
+                className="h-full w-full object-contain"
+                width={500}
+                height={500}
+                quality={100}
+                alt="Product picture"
+              />
+            </>
+          ) : (
+            <ImageUploadIcon className="size-8 text-orange-base" />
+          )}
+        </label>
+        <input
+          type="file"
+          id="product"
+          accept="image/png, image/jpeg, image/jpg"
+          className="sr-only"
+          onChange={handleProductImageChange}
+        />
+        <input type="hidden" name="attachmentId" value={attachmentId} />
+        <div>
+          {state.field_errors &&
+            state.field_errors.attachmentId &&
+            state.field_errors.attachmentId.map((error, index) => (
+              <Input.Error key={index}>
+                <AlertCircleIcon className="size-4 text-danger" />
+                {error}
+              </Input.Error>
+            ))}
+        </div>
       </div>
       <div className="flex-1 rounded-card bg-white p-6">
         <fieldset>
@@ -120,7 +156,7 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
             <legend className="text-title-sm text-gray-300">
               Dados do produto
             </legend>
-            <ProductStatusTag status="available" />
+            <ProductStatusTag status={product.status} />
           </div>
 
           <div className="mt-6 space-y-5">
@@ -139,6 +175,14 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
                     }
                   />
                 </Input.Content>
+                {state.field_errors &&
+                  state.field_errors.title &&
+                  state.field_errors.title.map((error, index) => (
+                    <Input.Error key={index}>
+                      <AlertCircleIcon className="size-4 text-danger" />
+                      {error}
+                    </Input.Error>
+                  ))}
               </Input.Root>
 
               <Input.Root>
@@ -149,13 +193,21 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
                   </Input.Prefix>
                   <Input.ControlInput
                     type="text"
-                    name="price"
+                    name="priceInCents"
                     value={price}
                     placeholder="0,00"
                     onChange={handlePriceChange}
                     className="w-50"
                   />
                 </Input.Content>
+                {state.field_errors &&
+                  state.field_errors.priceInCents &&
+                  state.field_errors.priceInCents.map((error, index) => (
+                    <Input.Error key={index}>
+                      <AlertCircleIcon className="size-4 text-danger" />
+                      {error}
+                    </Input.Error>
+                  ))}
               </Input.Root>
             </div>
 
@@ -173,28 +225,45 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
                   }
                 />
               </Input.Content>
+              {state.field_errors &&
+                state.field_errors.description &&
+                state.field_errors.description.map((error, index) => (
+                  <Input.Error key={index}>
+                    <AlertCircleIcon className="size-4 text-danger" />
+                    {error}
+                  </Input.Error>
+                ))}
             </Input.Root>
-
-            <Select.Root
-              label="Categoria"
-              value={product.category.id}
-              ref={selectHandlersRef}
-              name="categoryId"
-            >
-              {categories ? (
-                categories.map((category) => (
-                  <Select.Item
-                    key={category.id}
-                    value={category.id}
-                    title={category.title}
-                  />
-                ))
-              ) : (
-                <span className="block px-4 py-3 text-center text-body-sm text-gray-300">
-                  Carregando...
-                </span>
-              )}
-            </Select.Root>
+            <div>
+              <Select.Root
+                label="Categoria"
+                value={product.category.id}
+                ref={selectHandlersRef}
+                name="categoryId"
+              >
+                {categories ? (
+                  categories.map((category) => (
+                    <Select.Item
+                      key={category.id}
+                      value={category.id}
+                      title={category.title}
+                    />
+                  ))
+                ) : (
+                  <span className="block px-4 py-3 text-center text-body-sm text-gray-300">
+                    Carregando...
+                  </span>
+                )}
+              </Select.Root>
+              {state.field_errors &&
+                state.field_errors.categoryId &&
+                state.field_errors.categoryId.map((error, index) => (
+                  <Input.Error key={index}>
+                    <AlertCircleIcon className="size-4 text-danger" />
+                    {error}
+                  </Input.Error>
+                ))}
+            </div>
           </div>
 
           <div className="mt-10 flex gap-3">
@@ -207,8 +276,20 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
             >
               Cancelar
             </Button>
-            <Button size="md" font="action-md">
-              Salvar e atualizar
+            <Button
+              disabled={
+                isPending ||
+                product.status === 'cancelled' ||
+                product.status === 'sold'
+              }
+              data-form-disabled={
+                product.status === 'cancelled' || product.status === 'sold'
+              }
+              size="md"
+              font="action-md"
+              className="disabled:data-[form-disabled=false]:cursor-wait disabled:data-[form-disabled=true]:cursor-not-allowed"
+            >
+              {isPending ? <>Carregando...</> : <>Salvar</>}
             </Button>
           </div>
         </fieldset>
