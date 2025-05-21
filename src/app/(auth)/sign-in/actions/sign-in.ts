@@ -1,4 +1,5 @@
 'use server'
+import { addMonths } from 'date-fns'
 import { cookies } from 'next/headers'
 import { redirect, RedirectType } from 'next/navigation'
 import { z } from 'zod'
@@ -43,6 +44,7 @@ export const signInAction = async (_: ActionState, form: FormData) => {
 
     cookieStorage.set('auth', accessToken, {
       path: '/',
+      expires: addMonths(new Date(), 1),
     })
   } catch (error) {
     const httpError = await handleHttpError(error)

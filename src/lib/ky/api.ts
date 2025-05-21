@@ -1,4 +1,4 @@
-import { CookiesFn, getCookies } from 'cookies-next'
+import { CookiesFn, getCookie, getCookies } from 'cookies-next'
 import ky from 'ky'
 
 import { signOutAction } from '@/app/(app)/actions/sign-out'
@@ -19,18 +19,13 @@ export const api = ky.create({
           cookieStore = serverCookies
         }
 
-        const cookies = await getCookies({ cookies: cookieStore })
+        const authCookie = await getCookie('auth', { cookies: cookieStore })
 
-        if (!cookies) {
+        if (!authCookie) {
           return
         }
 
-        request.headers.set(
-          'Cookie',
-          Object.entries(cookies)
-            .map(([key, value]) => `${key}=${value}`)
-            .join('; '),
-        )
+        request.headers.set('Cookie', `auth=${authCookie}`)
       },
     ],
     afterResponse: [

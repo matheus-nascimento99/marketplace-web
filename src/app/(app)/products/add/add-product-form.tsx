@@ -39,6 +39,7 @@ export const AddProductForm = () => {
     if (state.success) {
       setPrice('')
       setProduct('')
+      setAttachmentId('')
       selectHandlersRef.current?.resetState()
 
       toast.success('Cadastro realizado com sucesso!', {

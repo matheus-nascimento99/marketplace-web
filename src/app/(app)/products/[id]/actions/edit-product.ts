@@ -2,7 +2,6 @@
 
 import { z } from 'zod'
 
-import { uploadAttachments } from '@/attachments/upload-attachments'
 import { ActionState } from '@/utils/action-state'
 import { capitalize } from '@/utils/capitalize'
 import { handleHttpError } from '@/utils/handle-http-error'
